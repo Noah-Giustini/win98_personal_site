@@ -1,0 +1,72 @@
+/*
+ * BASE & GLOBAL STYLING
+ * Includes common button styles, forms, and typography.
+ */
+
+/* Standard button styles (Applies to all elements with <button> tag) */
+button {
+    border: 0;
+    cursor: pointer
+}
+
+.windows-button {
+    -moz-appearance: none;
+    appearance: none;
+    font-weight: 700;
+    letter-spacing: .05em;
+    padding: .45em .75em;
+    border-left: 2px solid #ededed;
+    border-top: 2px solid #ededed;
+    border-right: 2px solid #404040;
+    border-bottom: 2px solid #404040
+}
+
+.windows-button:active {
+    -webkit-transform: translate3d(0, 1px, 0);
+    transform: translate3d(0, 1px, 0)
+}
+
+.windows-button:focus {
+    outline: #000 dotted 1px
+}
+
+.windows-button,
+input {
+    -webkit-appearance: none
+}
+
+/* Base style for Windows theme components */
+.windows,
+.windows-button {
+    /* Replace with your actual font */
+    font-family: px_sans_nouveaux;
+    font-size: 9px; 
+}
+
+/* Inner window content padding */
+.windows-content {
+    padding: 1.5em
+}
+
+/* The main window body styling (3D effect) */
+.windows {
+    font-weight: 400;
+    letter-spacing: .025em;
+    font-smoothing: never;
+    -webkit-font-smoothing: none;
+    background-color: #c6c6c6;
+    border-top: 2px solid #efefef;
+    border-left: 2px solid #efefef;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    height: 100%;
+    position: relative
+}
+
+/* Styling for buttons inside the windows */
+.windows .windows-button {
+    color: #000;
+    background-color: silver;
+    position: relative;
+    z-index: 10;
+}
