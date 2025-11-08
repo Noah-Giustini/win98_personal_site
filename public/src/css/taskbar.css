@@ -1,0 +1,153 @@
+/*
+ * TASKBAR STYLING
+ * Styles for the start bar, start button, clock, and window tabs.
+ */
+
+/* Main Start Bar Container */
+.start-bar {
+    padding: 2px;
+    box-shadow: inset 1px 0 #fff;
+    background-color: silver;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #f4f4f4;
+    border-bottom: 1px solid #4e4e4e;
+    position: fixed;
+    z-index: 99999;
+    
+    /* Flexbox settings for single row layout (Fixes clock wrap issue) */
+    display: flex;
+    flex-direction: row; 
+    align-items: center; 
+    flex-wrap: nowrap; 
+    
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Start Button Wrapper (The clickable 3D button) */
+.start-button-wrapper {
+    margin-left: 2px;
+    margin-bottom: 2px;
+    vertical-align: middle;
+    display: inline-block;
+    padding: 2px 6px 3px;
+    background-color: silver;
+    /* 3D Pressed/Raised Effect */
+    border-top: 1px solid #fff;
+    border-left: 1px solid #fff;
+    border-right: 1px solid gray;
+    border-bottom: 1px solid gray;
+    box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
+    min-width: 59px;
+    margin-right: 6px;
+    color: #000;
+    flex-shrink: 0; /* Prevents button from shrinking */
+}
+
+/* Start Button Image (the actual graphic) */
+.start-button {
+    background-image: url(../../images/start-button.png);
+    background-repeat: no-repeat;
+    width: 45px;
+    height: 14px;
+}
+
+/* Taskbar Tabs Container (Holds all window tabs) */
+.taskbar-tabs-container {
+    display: flex; 
+    flex-grow: 1; 
+    flex-shrink: 1; 
+    min-width: 0; /* Critical for overflow control */
+    overflow: hidden; 
+    height: 100%;
+}
+
+/* Single Taskbar Tab (Inactive/Raised) */
+.taskbar-tab {
+    min-width: 60px; 
+    max-width: 160px; 
+    padding: 3px 6px;
+    margin-right: 2px;
+    font-family: 'px_sans_nouveaux';
+    color: black;
+    font-weight: bold;
+    font-size: 9px;
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Win95 "raised" effect */
+    background-color: silver; 
+    border: 1px solid silver;
+    box-shadow: 
+        inset 1px 1px #ffffff, /* Top/Left light */
+        inset -1px -1px #808080, /* Bottom/Right dark */
+        1px 1px #000000; /* Outer shadow */
+    
+    cursor: pointer;
+    user-select: none;
+    display: flex; 
+    align-items: center; 
+}
+
+/* Taskbar Tab Icon */
+.taskbar-tab-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px; 
+    image-rendering: pixelated; 
+    image-rendering: -moz-crisp-edges;
+}
+
+/* Active Taskbar Tab (Pressed/Sunken) */
+.taskbar-tab-active {
+    /* Win95 "pressed" effect */
+    background-color: #dddddd; 
+    box-shadow: 
+        inset 1px 1px #808080, /* Top/Left dark */
+        inset -1px -1px #ffffff; /* Bottom/Right light */
+    
+    /* Remove the outer shadow */
+    border-color: #808080;
+}
+
+/* Clock/System Tray area */
+.made-by {
+    vertical-align: middle;
+    height: 22px;
+    line-height: 22px;
+    border-right: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+    font-family: Arial;
+    font-weight: 400;
+    color: #000;
+    flex-shrink: 0; /* Prevents clock area from being compressed */
+    
+    /* Sunken 3D effect for the clock area */
+    border-top: 1px solid gray;
+    border-left: 1px solid gray;
+    text-align: right;
+    padding: 0 10px;
+}
+
+.start-bar-window {
+    vertical-align: middle;
+    height: 22px;
+    line-height: 22px;
+    border-right: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+    font-family: Arial;
+    font-weight: 400;
+    color: #000;
+    float: left;
+    padding: 0 10px 0 6px;
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
+    box-shadow: inset 1px 1px grey;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAG0lEQVQYV2M8cODAf3t7ewbG/////z948CADAFuqCj64BtLKAAAAAElFTkSuQmCC);
+}

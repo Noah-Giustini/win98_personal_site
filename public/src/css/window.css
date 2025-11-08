@@ -1,0 +1,93 @@
+/*
+ * WINDOW UI STYLING
+ * Styles for the window frames, headers, and drag/resize functionality.
+ */
+
+/* Styling the main window wrapper which has position:absolute */
+.windows-container-wrapper {
+    position: absolute; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional subtle shadow */
+}
+
+/* Styling the inner container (was the original draggable window div) */
+.windows-container {
+    height: 100%;
+    width: 100%;
+}
+
+/* Window Header Bar (Title bar) */
+.windows-header {
+    height: 25px;
+    position: relative;
+    color: #fff;
+    padding: 0 0.75em; 
+    background: navy;
+    /* 3D Border: Light on top/left, Dark on bottom/right */
+    border-top: 1px solid silver;
+    border-left: 1px solid silver;
+    border-right: 2px solid silver;
+    border-bottom: 1px solid silver;
+    
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+/* Window Header Title Text */
+.windows-header span {
+    flex-grow: 1; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Icon in the Window Header */
+.window-header-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px; 
+    image-rendering: pixelated; 
+    image-rendering: -moz-crisp-edges;
+}
+
+/* Minimize/Maximize/Close buttons container */
+.header-buttons {
+    display: flex;
+    gap: 4px; 
+}
+
+/* Base style for resize handles */
+.resize-handle {
+    position: absolute;
+    background: transparent; 
+    z-index: 10;
+}
+
+/* Specific handle positioning and cursors */
+
+/* Right Edge */
+.handle-right {
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 5px;
+    cursor: e-resize;
+}
+
+/* Bottom Edge */
+.handle-bottom {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    cursor: s-resize;
+}
+
+/* Bottom Right Corner */
+.handle-bottom-right {
+    right: 0;
+    bottom: 0;
+    width: 10px;
+    height: 10px;
+    cursor: se-resize; 
+}
