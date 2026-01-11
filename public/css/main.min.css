@@ -49,8 +49,8 @@ html {
 
 @font-face {
     font-family: px_sans_nouveaux;
-    src: url(../../fonts/px_sans_nouveaux/px_sans_nouveaux.eot);
-    src: url(../../fonts/px_sans_nouveaux/px_sans_nouveaux.eot?#iefix) format('embedded-opentype'), url(../../fonts/px_sans_nouveaux/px_sans_nouveaux.woff2) format('woff2'), url(../../fonts/px_sans_nouveaux/px_sans_nouveaux.woff) format('woff'), url(../../fonts/px_sans_nouveaux/px_sans_nouveaux.ttf) format('truetype')
+    src: url(.././fonts/px_sans_nouveaux/px_sans_nouveaux.eot);
+    src: url(.././fonts/px_sans_nouveaux/px_sans_nouveaux.eot?#iefix) format('embedded-opentype'), url(.././fonts/px_sans_nouveaux/px_sans_nouveaux.woff2) format('woff2'), url(.././fonts/px_sans_nouveaux/px_sans_nouveaux.woff) format('woff'), url(.././fonts/px_sans_nouveaux/px_sans_nouveaux.ttf) format('truetype')
 }
 
 -webkit-scrollbar-thumb {

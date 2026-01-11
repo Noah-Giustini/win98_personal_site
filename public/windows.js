@@ -253,10 +253,10 @@ class WindowManager {
                         ${iconHTML}<span>${title}</span>
                         <div class="header-buttons">
                             <button class="windows-button" style="padding:0; height:16px; width:16px;" onclick="windowManager.minimizeWindow('${id}')">
-                                <img src="../images/minimize-icon.png" style="width:100%; height:100%;">
+                                <img src="./images/minimize-icon.png" style="width:100%; height:100%;">
                             </button>
                             <button class="windows-button" style="padding:0; height:16px; width:16px;" onclick="windowManager.closeWindow('${id}')">
-                                <img src="../images/close-icon.png" style="width:100%; height:100%;">
+                                <img src="./images/close-icon.png" style="width:100%; height:100%;">
                             </button>
                         </div>
                     </header>
@@ -613,9 +613,9 @@ async function updateMinecraftMetrics(id) {
         if (statusLine) statusLine.textContent = `${jsonData.status}`;
 
         if (jsonData.status === "Minecraft server is running.") {
-            if (statusIcon) statusIcon.src = "../images/check-0.png";
+            if (statusIcon) statusIcon.src = "./images/check-0.png";
         } else {
-            if (statusIcon) statusIcon.src = "../images/msg_warning-0.png";
+            if (statusIcon) statusIcon.src = "./images/msg_warning-0.png";
         }
 
     } catch (err) {
@@ -623,7 +623,7 @@ async function updateMinecraftMetrics(id) {
         if (errorDiv) errorDiv.classList.remove('hidden');
         if (loadingDiv) loadingDiv.classList.add('hidden');
         statusLine.textContent = 'Status: Connection failed.';
-        statusIcon.src = "../images/msg_warning-0.png";
+        statusIcon.src = "./images/msg_warning-0.png";
     }
 }
 
@@ -829,24 +829,24 @@ const minecraftContent = `
                 
                 <!-- Status and API Info -->
                 <div class="text-xs text-gray-700 border-t border-gray-400 pt-2" style="margin-bottom: 10px; background-color: darkgray; padding: 5px; display:flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
-                    <img class="js-status-icon" src="../images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
+                    <img class="js-status-icon" src="./images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
                     <p class="js-status-line">Status: Initializing...</p>
                 </div>
                 <a title="Restart" class="button minecraft-restart-button-wrapper js-minecraft-restart-button" id="minecraft-restart-button" onclick="minecraftRestartServer()">
                     <div class="minecraft-restart-button">
-                        <img src="../images/netmeeting-2.png" style="width:25%; height:25%;">
+                        <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
                         <div style="width: min-content;">Restart Server</div>
                     </div>
                 </a>
                 <a title="Start" class="button minecraft-start-button-wrapper js-minecraft-start-button" target="_blank" id="minecraft-start-button" onclick="minecraftStartServer()">
                     <div class="minecraft-start-button"">
-                        <img src="../images/internet_options-0.png" style="width:25%; height:25%;">
+                        <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
                         <div style="width: min-content;">Start Server</div>
                     </div>
                 </a>
                 <a title="Stop" class="button minecraft-stop-button-wrapper js-minecraft-stop-button" target="_blank" id="minecraft-stop-button" onclick="minecraftStopServer()">
                     <div class="minecraft-stop-button">
-                        <img src="../images/msg_error-0.png" style="width:25%; height:25%;">
+                        <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
                         <div style="width: min-content;">Stop Server</div>
                     </div>
                 </a>

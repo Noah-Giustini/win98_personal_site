@@ -50,7 +50,7 @@
 
 /* Start Button Image (the actual graphic) */
 .start-button {
-    background-image: url(../../images/start-button.png);
+    background-image: url(.././images/start-button.png);
     background-repeat: no-repeat;
     width: 45px;
     height: 14px;

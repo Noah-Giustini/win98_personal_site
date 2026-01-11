@@ -30,7 +30,7 @@ $(document).ready(function(){
 		
 		var icon_name = icons[i].name.replace('.png','').replace(/-/g,' ').replace(/_/g,' ');
 		var name = toTitleCase( icon_name )
-		var img_src = "../images/" + icons[i].name;
+		var img_src = "./images/" + icons[i].name;
 		var size_classname = "img" + icons[i].size;
 		var img_classname = 'bg-' + icons[i].name.replace('.png','').replace(/_/g,'_').replace(/-/g,'_').toLowerCase();
 		var object = '<li class="icon-item"><span class="helper"></span><a href="{{href}}" target="_blank"><div class="{{img-class}} {{size-class}}" title="{{img-title}}"></div></a></li>'
