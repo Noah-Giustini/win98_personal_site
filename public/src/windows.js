@@ -355,8 +355,8 @@ class WindowManager {
 // ----------------------------------------------------------------------
 
 // --- API Configuration ---
-const API_BASE_URL = 'http://127.0.0.1:5000'; 
-const API_ENDPOINT = `${API_BASE_URL}/api/metrics`;
+const API_BASE_URL = 'http://10.0.1.3:8000'; 
+const METRICS_API = `${API_BASE_URL}/system/metrics`;
 
 /**
  * Safely attempts a fetch operation with exponential backoff.
@@ -454,7 +454,17 @@ async function updateMetrics(id) {
     }
     
     try {
-        const data = await fetchWithRetry(API_ENDPOINT);
+
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const data = await fetch(METRICS_API, requestOptions);
+        const dataJson = await data.json();
 
         // Hide loading/error messages on success
         if (loadingDiv) {
@@ -470,15 +480,15 @@ async function updateMetrics(id) {
         const cpuProgress = windowContainer.querySelector('.js-cpu-progress');
         const cpuGraph = windowContainer.querySelector('.js-cpu-graph');
 
-        if (cpuValue) cpuValue.textContent = `${data.cpu_percent.toFixed(1)}%`;
+        if (cpuValue) cpuValue.textContent = `${dataJson.cpu_percent.toFixed(1)}%`;
         
 
         if (cpuProgress) {
-            updateProgress(cpuProgress, data.cpu_percent);
+            updateProgress(cpuProgress, dataJson.cpu_percent);
         }
         
         if (windowObj.cpuHistory) {
-            windowObj.cpuHistory.push(data.cpu_percent);
+            windowObj.cpuHistory.push(dataJson.cpu_percent);
             // Keep only the last 100 values
             if (windowObj.cpuHistory.length > 100) {
                 windowObj.cpuHistory.shift();
@@ -492,15 +502,15 @@ async function updateMetrics(id) {
         const memGraph = windowContainer.querySelector('.js-mem-graph');
 
         if (memValue) {
-            memValue.textContent = `${data.mem_used_gb.toFixed(1)} GB / ${data.mem_total_gb.toFixed(1)} GB`;
+            memValue.textContent = `${dataJson.mem_used_gb.toFixed(1)} GB / ${dataJson.mem_total_gb.toFixed(1)} GB`;
         }
 
         if (memProgress) {
-            updateProgress(memProgress, data.mem_percent);
+            updateProgress(memProgress, dataJson.mem_percent);
         }
 
         if (windowObj.memHistory) {
-            windowObj.memHistory.push(data.mem_percent);
+            windowObj.memHistory.push(dataJson.mem_percent);
             if (windowObj.memHistory.length > 100) {
                 windowObj.memHistory.shift();
             }
@@ -514,15 +524,15 @@ async function updateMetrics(id) {
         const gpuGraph = windowContainer.querySelector('.js-gpu-graph');
 
         if (gpuValue) {
-            gpuValue.textContent = `${data.gpu_percent.toFixed(1)}%`;
+            gpuValue.textContent = `${dataJson.gpu_percent.toFixed(1)}%`;
         }
 
         if (gpuProgress) {
-            updateProgress(gpuProgress, data.gpu_percent);
+            updateProgress(gpuProgress, dataJson.gpu_percent);
         }
 
         if (windowObj.gpuHistory) {
-            windowObj.gpuHistory.push(data.gpu_percent);
+            windowObj.gpuHistory.push(dataJson.gpu_percent);
             if (windowObj.gpuHistory.length > 100) {
                 windowObj.gpuHistory.shift();
             }
@@ -532,7 +542,7 @@ async function updateMetrics(id) {
         // --- Update Temperature ---
         const tempValue = windowContainer.querySelector('.js-temp-value');
         if (tempValue) {
-            tempValue.textContent = `${data.temp_c}°C`;
+            tempValue.textContent = `${dataJson.temp_c}°C`;
         }
         
         statusLine.textContent = 'Status: Monitoring active.';
@@ -542,6 +552,78 @@ async function updateMetrics(id) {
         if (errorDiv) errorDiv.classList.remove('hidden');
         if (loadingDiv) loadingDiv.classList.add('hidden');
         statusLine.textContent = 'Status: Connection failed.';
+    }
+}
+
+
+//minecraft APIs
+const MINECRAFT_API_STATUS = `${API_BASE_URL}/minecraft/status`;
+const MINECRAFT_API_START = `${API_BASE_URL}/minecraft/start`;
+const MINECRAFT_API_STOP = `${API_BASE_URL}/minecraft/stop`;
+const MINECRAFT_API_RESTART = `${API_BASE_URL}/minecraft/restart`;
+const API_KEY_NAME = "access_token";
+const API_KEY = "key";
+/**
+ * Main function to fetch and render minecraft server information.
+ */
+async function updateMinecraftMetrics(id) {
+    const windowContainer = document.getElementById(`${id}-window-container`);
+    if (!windowContainer) return; // Window closed
+
+    // --- Get window object to store history ---
+    const windowObj = windowManager.openWindows.get(id);
+    if (!windowObj) {
+        return;
+    } 
+
+    const loadingDiv = windowContainer.querySelector('.js-loading');
+    const errorDiv = windowContainer.querySelector('.js-error-message');
+    const statusLine = windowContainer.querySelector('.js-status-line');
+    const statusIcon = windowContainer.querySelector('.js-status-icon');
+
+    // Only show loading on first run
+    if (loadingDiv && !loadingDiv.classList.contains('hidden')) {
+        statusLine.textContent = 'Status: Fetching data...';
+    }
+    
+    try {
+        
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const data = await fetch(MINECRAFT_API_STATUS, requestOptions);
+        const jsonData = await data.json();
+
+        // Hide loading/error messages on success
+        if (loadingDiv) {
+            loadingDiv.classList.add('hidden');
+        }
+
+        if (errorDiv) {
+            errorDiv.classList.add('hidden');
+        }
+
+        // --- Update status value ---
+        //get the response status text from the server
+        if (statusLine) statusLine.textContent = `${jsonData.status}`;
+
+        if (jsonData.status === "Minecraft server is running.") {
+            if (statusIcon) statusIcon.src = "../images/check-0.png";
+        } else {
+            if (statusIcon) statusIcon.src = "../images/msg_warning-0.png";
+        }
+
+    } catch (err) {
+        console.error("Minecraft Monitoring Error:", err);
+        if (errorDiv) errorDiv.classList.remove('hidden');
+        if (loadingDiv) loadingDiv.classList.add('hidden');
+        statusLine.textContent = 'Status: Connection failed.';
+        statusIcon.src = "../images/msg_warning-0.png";
     }
 }
 
@@ -570,8 +652,79 @@ function initializeSystemMonitor(id) {
     // Set API endpoint display 
     const windowContainer = document.getElementById(`${id}-window-container`);
     if (windowContainer) {
-        windowContainer.querySelector('.js-api-endpoint-display').textContent = API_ENDPOINT;
+        windowContainer.querySelector('.js-api-endpoint-display').textContent = METRICS_API;
         windowContainer.querySelector('.js-api-url').textContent = API_BASE_URL;
+    }
+}
+
+//initialize minecraft monitor
+function initializeMinecraftMonitor(id) {
+    const windowObj = windowManager.openWindows.get(id);
+    if (!windowObj) return;
+
+    // Initial run
+    updateMinecraftMetrics(id); 
+
+    // Set interval to refresh metrics every 5 seconds (5000ms)
+    const intervalId = setInterval(() => updateMinecraftMetrics(id), 5000);
+
+    if (windowObj) {
+        windowObj.intervalId = intervalId;
+    }
+    
+    // Set API endpoint display 
+    const windowContainer = document.getElementById(`${id}-window-container`);
+    if (windowContainer) {
+        windowContainer.querySelector('.js-api-url').textContent = API_BASE_URL;
+    }
+}
+
+
+async function minecraftRestartServer() {
+    try{ 
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const res = await fetch(MINECRAFT_API_RESTART, requestOptions);
+    } catch(err){ 
+        alert('Failed to restart Minecraft Server: ' + err.message);
+    }
+}
+
+async function minecraftStartServer() {
+    try{ 
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const res = await fetch(MINECRAFT_API_START, requestOptions);
+    } catch(err){ 
+        alert('Failed to start Minecraft Server: ' + err.message);
+    }
+}
+
+async function minecraftStopServer() {
+    try{ 
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const res = await fetch(MINECRAFT_API_STOP, requestOptions);
+    } catch(err){ 
+        alert('Failed to start Minecraft Server: ' + err.message);
     }
 }
 
@@ -632,8 +785,10 @@ newAppLinks.forEach(link => {
             case 'notepad':
                 content = notepadContent;
                 break;
-            case 'minesweeper':
-                content = minesweeperContent;
+            case 'minecraft':
+                content = minecraftContent;
+                startMenu.style.display = 'none';
+                onOpenCallback = initializeMinecraftMonitor;
                 break;
             case 'internet':
                 content = internetContent;
@@ -667,7 +822,43 @@ const portfolioContent = `
     </div>`;
 
 const notepadContent = `<h1>Notepad</h1><p>A simple text editor.</p>`;
-const minesweeperContent = `<h1>Minesweeper</h1><p>Welcome to the classic minefield!</p>`;
+
+//monitor window for minecraft server
+const minecraftContent = `
+            <div class="p-4 space-y-4">
+                
+                <!-- Status and API Info -->
+                <div class="text-xs text-gray-700 border-t border-gray-400 pt-2" style="margin-bottom: 10px; background-color: darkgray; padding: 5px; display:flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                    <img class="js-status-icon" src="../images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
+                    <p class="js-status-line">Status: Initializing...</p>
+                </div>
+                <a title="Restart" class="button minecraft-restart-button-wrapper js-minecraft-restart-button" id="minecraft-restart-button" onclick="minecraftRestartServer()">
+                    <div class="minecraft-restart-button">
+                        <img src="../images/netmeeting-2.png" style="width:25%; height:25%;">
+                        <div style="width: min-content;">Restart Server</div>
+                    </div>
+                </a>
+                <a title="Start" class="button minecraft-start-button-wrapper js-minecraft-start-button" target="_blank" id="minecraft-start-button" onclick="minecraftStartServer()">
+                    <div class="minecraft-start-button"">
+                        <img src="../images/internet_options-0.png" style="width:25%; height:25%;">
+                        <div style="width: min-content;">Start Server</div>
+                    </div>
+                </a>
+                <a title="Stop" class="button minecraft-stop-button-wrapper js-minecraft-stop-button" target="_blank" id="minecraft-stop-button" onclick="minecraftStopServer()">
+                    <div class="minecraft-stop-button">
+                        <img src="../images/msg_error-0.png" style="width:25%; height:25%;">
+                        <div style="width: min-content;">Stop Server</div>
+                    </div>
+                </a>
+
+                <!-- Loading/Error Messages -->
+                <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
+                <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
+                    Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
+                </div>
+            </div>
+        `;
+
 const internetContent = `<h1>Internet Explorer</h1><p>The best browser... in 1995.</p>`;
 
 /**
@@ -774,7 +965,7 @@ const systemMonitorContentHTML = `
                 <!-- Loading/Error Messages -->
                 <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
                 <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
-                    Connection Failed. Ensure \`server_monitor.py\` is running on <span class="js-api-url"></span>.
+                    Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
                 </div>
 
                 ${cpuBlock}

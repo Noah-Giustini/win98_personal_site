@@ -15,6 +15,9 @@ html {
 }
 
 .start-button-wrapper,
+.minecraft-restart-button,
+.minecraft-start-button,
+.minecraft-stop-button,
 button {
     border: 0;
     cursor: pointer

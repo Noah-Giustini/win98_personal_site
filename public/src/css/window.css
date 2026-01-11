@@ -91,3 +91,34 @@
     height: 10px;
     cursor: se-resize; 
 }
+
+.minecraft-restart-button,
+.minecraft-start-button,
+.minecraft-stop-button {
+    margin-left: 2px;
+    margin-bottom: 2px;
+    vertical-align: middle;
+    display: inline-block;
+    padding: 2px 6px 3px;
+    background-color: silver;
+    /* 3D Pressed/Raised Effect */
+    border-top: 1px solid #fff;
+    border-left: 1px solid #fff;
+    border-right: 1px solid gray;
+    border-bottom: 1px solid gray;
+    box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
+    min-width: 59px;
+    margin-right: 6px;
+    color: #000;
+    flex-shrink: 0; /* Prevents button from shrinking */
+}
+
+.minecraft-restart-button,
+.minecraft-start-button,
+.minecraft-stop-button {
+    display:flex; 
+    flex-direction: row; 
+    align-items: center; 
+    justify-content: space-evenly;
+    max-width: 8rem;
+}
