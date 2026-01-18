@@ -94,7 +94,10 @@
 
 .minecraft-restart-button,
 .minecraft-start-button,
-.minecraft-stop-button {
+.minecraft-stop-button,
+.discord-nobot-restart-button,
+.discord-nobot-start-button,
+.discord-nobot-stop-button {
     margin-left: 2px;
     margin-bottom: 2px;
     vertical-align: middle;
@@ -115,7 +118,10 @@
 
 .minecraft-restart-button,
 .minecraft-start-button,
-.minecraft-stop-button {
+.minecraft-stop-button,
+.discord-nobot-restart-button,
+.discord-nobot-start-button,
+.discord-nobot-stop-button {
     display:flex; 
     flex-direction: row; 
     align-items: center; 

@@ -118,11 +118,51 @@ async def minecraft_status():
 #     run_command(cmd)
 #     return {"status": "Minecraft server starting..."}
 
-# @app.post("/minecraft/listplayers", dependencies=[Depends(get_api_key)])
-# async def minecraft_list_players():
-#     cmd = f"cd {MC_SERVER_DIR} && screen -dmS mc_session java -jar server.jar nogui"
-#     run_command(cmd)
-#     return {"status": "Minecraft server starting..."}
+@app.post("/minecraft/listplayers", dependencies=[Depends(get_api_key)])
+async def minecraft_list_players():
+    lst_cmd = f"/usr/bin/screen -p 0 -X eval 'stuff list\015'"
+    tail_cmd = f"tail -n 1 /home/giraffe/Minecraft/logs/latest.log"
+    run_command(lst_cmd)
+    ret_string = run_command(tail_cmd)
+    #example return: [12:38:19] [Server thread/INFO]: There are 1 of a max of 20 players online: boldcoffee
+    #parse return string to get number of players and list of names
+    split1 = ret_string.split("There are ")[1]
+    num_players = split1.split(" of a max of ")[0]
+    split2 = split1.split("players online: ")[1]
+    if (num_players == "0"):
+        player_list = []
+    else:
+        player_list = [name.strip() for name in split2.split(",")]
+    return {"player_count": num_players, "players": player_list}
+
+#discord bot endpoints
+@app.post("/discord/no/start", dependencies=[Depends(get_api_key)])
+async def discord_nobot_start():
+    cmd = f"sudo systemctl start no-bot"
+    run_command(cmd)
+    return {"status": "Discord No-Bot starting..."}
+
+@app.post("/discord/no/restart", dependencies=[Depends(get_api_key)])
+async def discord_nobot_restart():
+    cmd = f"sudo systemctl restart no-bot"
+    run_command(cmd)
+    return {"status": "Discord No-Bot restarting..."}
+
+@app.post("/discord/no/stop", dependencies=[Depends(get_api_key)])
+async def discord_nobot_stop():
+    cmd = f"sudo systemctl stop no-bot"
+    run_command(cmd)
+    return {"status": "Discord No-Bot stopping..."}
+
+@app.post("/discord/no/status", dependencies=[Depends(get_api_key)])
+async def discord_nobot_status():
+    cmd = f"sudo systemctl status no-bot | grep Active: "
+    ret = run_command(cmd)
+    if ("active (running)" in ret):
+        ret = "Discord No-Bot is running."
+    else:
+        ret = "Discord No-Bot is not running or has encountered an error."
+    return {"status": ret.strip()}
 
 #system endpoints
 @app.post("/system/reboot", dependencies=[Depends(get_api_key)])

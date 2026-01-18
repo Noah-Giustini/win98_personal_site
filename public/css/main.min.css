@@ -18,6 +18,9 @@ html {
 .minecraft-restart-button,
 .minecraft-start-button,
 .minecraft-stop-button,
+.discord-nobot-restart-button,
+.discord-nobot-start-button,
+.discord-nobot-stop-button,
 button {
     border: 0;
     cursor: pointer

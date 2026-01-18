@@ -349,34 +349,13 @@ class WindowManager {
     }
 }
 
-
-// ----------------------------------------------------------------------
-// --- SYSTEM MONITOR UTILITIES (EXTRACTED FROM system_monitor.html) ---
-// ----------------------------------------------------------------------
-
 // --- API Configuration ---
 const API_BASE_URL = 'http://10.0.1.3:8000'; 
+const API_KEY_NAME = "access_token";
+const API_KEY = "key";
 const METRICS_API = `${API_BASE_URL}/system/metrics`;
 
-/**
- * Safely attempts a fetch operation with exponential backoff.
- */
-async function fetchWithRetry(url, retries = 3, delay = 1000) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return await response.json();
-    } catch (error) {
-        if (retries > 0) {
-            await new Promise(resolve => setTimeout(resolve, delay));
-            return fetchWithRetry(url, retries - 1, delay * 2);
-        } else {
-            throw new Error("API connection failed after multiple retries.");
-        }
-    }
-}
+//*****************************System Monitor *****************************/
 
 /**
  * Updates the progress bar width. Color is set in HTML.
@@ -556,13 +535,43 @@ async function updateMetrics(id) {
 }
 
 
+/**
+ * Initializes the monitoring interval for a new window instance.
+ */
+function initializeSystemMonitor(id) {
+    const windowObj = windowManager.openWindows.get(id);
+    if (!windowObj) return;
+
+    // Initialize history arrays
+    windowObj.cpuHistory = [];
+    windowObj.memHistory = [];
+    windowObj.gpuHistory = [];
+
+    // Initial run
+    updateMetrics(id); 
+
+    // Set interval to refresh metrics every 1 second (1000ms)
+    const intervalId = setInterval(() => updateMetrics(id), 1000);
+
+    if (windowObj) {
+        windowObj.intervalId = intervalId;
+    }
+    
+    // Set API endpoint display 
+    const windowContainer = document.getElementById(`${id}-window-container`);
+    if (windowContainer) {
+        windowContainer.querySelector('.js-api-endpoint-display').textContent = METRICS_API;
+        windowContainer.querySelector('.js-api-url').textContent = API_BASE_URL;
+    }
+}
+
+//*****************************MINECRAFT SERVER *****************************/
+
 //minecraft APIs
 const MINECRAFT_API_STATUS = `${API_BASE_URL}/minecraft/status`;
 const MINECRAFT_API_START = `${API_BASE_URL}/minecraft/start`;
 const MINECRAFT_API_STOP = `${API_BASE_URL}/minecraft/stop`;
 const MINECRAFT_API_RESTART = `${API_BASE_URL}/minecraft/restart`;
-const API_KEY_NAME = "access_token";
-const API_KEY = "key";
 /**
  * Main function to fetch and render minecraft server information.
  */
@@ -627,36 +636,6 @@ async function updateMinecraftMetrics(id) {
     }
 }
 
-/**
- * Initializes the monitoring interval for a new window instance.
- */
-function initializeSystemMonitor(id) {
-    const windowObj = windowManager.openWindows.get(id);
-    if (!windowObj) return;
-
-    // Initialize history arrays
-    windowObj.cpuHistory = [];
-    windowObj.memHistory = [];
-    windowObj.gpuHistory = [];
-
-    // Initial run
-    updateMetrics(id); 
-
-    // Set interval to refresh metrics every 1 second (1000ms)
-    const intervalId = setInterval(() => updateMetrics(id), 1000);
-
-    if (windowObj) {
-        windowObj.intervalId = intervalId;
-    }
-    
-    // Set API endpoint display 
-    const windowContainer = document.getElementById(`${id}-window-container`);
-    if (windowContainer) {
-        windowContainer.querySelector('.js-api-endpoint-display').textContent = METRICS_API;
-        windowContainer.querySelector('.js-api-url').textContent = API_BASE_URL;
-    }
-}
-
 //initialize minecraft monitor
 function initializeMinecraftMonitor(id) {
     const windowObj = windowManager.openWindows.get(id);
@@ -678,7 +657,6 @@ function initializeMinecraftMonitor(id) {
         windowContainer.querySelector('.js-api-url').textContent = API_BASE_URL;
     }
 }
-
 
 async function minecraftRestartServer() {
     try{ 
@@ -724,7 +702,148 @@ async function minecraftStopServer() {
 
         const res = await fetch(MINECRAFT_API_STOP, requestOptions);
     } catch(err){ 
-        alert('Failed to start Minecraft Server: ' + err.message);
+        alert('Failed to stop Minecraft Server: ' + err.message);
+    }
+}
+
+//*****************************DISCORD NO-BOT *****************************/
+
+//discord no-bot APIs
+const DISCORD_NOBOT_API_STATUS = `${API_BASE_URL}/discord/no/status`;
+const DISCORD_NOBOT_API_START = `${API_BASE_URL}/discord/no/start`;
+const DISCORD_NOBOT_API_STOP = `${API_BASE_URL}/discord/no/stop`;
+const DISCORD_NOBOT_API_RESTART = `${API_BASE_URL}/discord/no/restart`;
+/**
+ * Main function to fetch and render minecraft server information.
+ */
+async function updateDiscordNobotMetrics(id) {
+    const windowContainer = document.getElementById(`${id}-window-container`);
+    if (!windowContainer) return; // Window closed
+
+    // --- Get window object to store history ---
+    const windowObj = windowManager.openWindows.get(id);
+    if (!windowObj) {
+        return;
+    } 
+
+    const loadingDiv = windowContainer.querySelector('.js-loading');
+    const errorDiv = windowContainer.querySelector('.js-error-message');
+    const statusLine = windowContainer.querySelector('.js-status-line');
+    const statusIcon = windowContainer.querySelector('.js-status-icon');
+
+    // Only show loading on first run
+    if (loadingDiv && !loadingDiv.classList.contains('hidden')) {
+        statusLine.textContent = 'Status: Fetching data...';
+    }
+    
+    try {
+        
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const data = await fetch(DISCORD_NOBOT_API_STATUS, requestOptions);
+        const jsonData = await data.json();
+
+        // Hide loading/error messages on success
+        if (loadingDiv) {
+            loadingDiv.classList.add('hidden');
+        }
+
+        if (errorDiv) {
+            errorDiv.classList.add('hidden');
+        }
+
+        // --- Update status value ---
+        //get the response status text from the server
+        if (statusLine) statusLine.textContent = `${jsonData.status}`;
+
+        if (jsonData.status === "Discord No-Bot is running.") {
+            if (statusIcon) statusIcon.src = "./images/check-0.png";
+        } else {
+            if (statusIcon) statusIcon.src = "./images/msg_warning-0.png";
+        }
+
+    } catch (err) {
+        console.error("Discord No-Bot Monitoring Error:", err);
+        if (errorDiv) errorDiv.classList.remove('hidden');
+        if (loadingDiv) loadingDiv.classList.add('hidden');
+        statusLine.textContent = 'Status: Connection failed.';
+        statusIcon.src = "./images/msg_warning-0.png";
+    }
+}
+
+//initialize Discord No-Bot monitor
+function initializeDiscordNobotMonitor(id) {
+    const windowObj = windowManager.openWindows.get(id);
+    if (!windowObj) return;
+
+    // Initial run
+    updateDiscordNobotMetrics(id); 
+
+    // Set interval to refresh metrics every 5 seconds (5000ms)
+    const intervalId = setInterval(() => updateDiscordNobotMetrics(id), 5000);
+
+    if (windowObj) {
+        windowObj.intervalId = intervalId;
+    }
+    
+    // Set API endpoint display 
+    const windowContainer = document.getElementById(`${id}-window-container`);
+    if (windowContainer) {
+        windowContainer.querySelector('.js-api-url').textContent = API_BASE_URL;
+    }
+}
+
+async function discordNobotRestart() {
+    try{ 
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const res = await fetch(DISCORD_NOBOT_API_RESTART, requestOptions);
+    } catch(err){ 
+        alert('Failed to restart Discord No-Bot: ' + err.message);
+    }
+}
+
+async function discordNobotStart() {
+    try{ 
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const res = await fetch(DISCORD_NOBOT_API_START, requestOptions);
+    } catch(err){ 
+        alert('Failed to start Discord No-Bot: ' + err.message);
+    }
+}
+
+async function discordNobotStop() {
+    try{ 
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const res = await fetch(DISCORD_NOBOT_API_STOP, requestOptions);
+    } catch(err){ 
+        alert('Failed to stop Discord No-Bot: ' + err.message);
     }
 }
 
@@ -790,6 +909,11 @@ newAppLinks.forEach(link => {
                 startMenu.style.display = 'none';
                 onOpenCallback = initializeMinecraftMonitor;
                 break;
+            case 'discord-nobot':
+                content = discordNobotContent;
+                startMenu.style.display = 'none';
+                onOpenCallback = initializeDiscordNobotMonitor;
+                break;
             case 'internet':
                 content = internetContent;
                 break;
@@ -824,40 +948,78 @@ const portfolioContent = `
 const notepadContent = `<h1>Notepad</h1><p>A simple text editor.</p>`;
 
 //monitor window for minecraft server
-const minecraftContent = `
-            <div class="p-4 space-y-4">
-                
-                <!-- Status and API Info -->
-                <div class="text-xs text-gray-700 border-t border-gray-400 pt-2" style="margin-bottom: 10px; background-color: darkgray; padding: 5px; display:flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
-                    <img class="js-status-icon" src="./images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
-                    <p class="js-status-line">Status: Initializing...</p>
-                </div>
-                <a title="Restart" class="button minecraft-restart-button-wrapper js-minecraft-restart-button" id="minecraft-restart-button" onclick="minecraftRestartServer()">
-                    <div class="minecraft-restart-button">
-                        <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
-                        <div style="width: min-content;">Restart Server</div>
-                    </div>
-                </a>
-                <a title="Start" class="button minecraft-start-button-wrapper js-minecraft-start-button" target="_blank" id="minecraft-start-button" onclick="minecraftStartServer()">
-                    <div class="minecraft-start-button"">
-                        <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
-                        <div style="width: min-content;">Start Server</div>
-                    </div>
-                </a>
-                <a title="Stop" class="button minecraft-stop-button-wrapper js-minecraft-stop-button" target="_blank" id="minecraft-stop-button" onclick="minecraftStopServer()">
-                    <div class="minecraft-stop-button">
-                        <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
-                        <div style="width: min-content;">Stop Server</div>
-                    </div>
-                </a>
-
-                <!-- Loading/Error Messages -->
-                <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
-                <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
-                    Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
-                </div>
+const minecraftContent = 
+`
+    <div class="p-4 space-y-4">
+        
+        <!-- Status and API Info -->
+        <div class="text-xs text-gray-700 border-t border-gray-400 pt-2" style="margin-bottom: 10px; background-color: darkgray; padding: 5px; display:flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+            <img class="js-status-icon" src="./images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
+            <p class="js-status-line">Status: Initializing...</p>
+        </div>
+        <a title="Restart" class="button minecraft-restart-button-wrapper js-minecraft-restart-button" id="minecraft-restart-button" onclick="minecraftRestartServer()">
+            <div class="minecraft-restart-button">
+                <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
+                <div style="width: min-content;">Restart Server</div>
             </div>
-        `;
+        </a>
+        <a title="Start" class="button minecraft-start-button-wrapper js-minecraft-start-button" target="_blank" id="minecraft-start-button" onclick="minecraftStartServer()">
+            <div class="minecraft-start-button"">
+                <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
+                <div style="width: min-content;">Start Server</div>
+            </div>
+        </a>
+        <a title="Stop" class="button minecraft-stop-button-wrapper js-minecraft-stop-button" target="_blank" id="minecraft-stop-button" onclick="minecraftStopServer()">
+            <div class="minecraft-stop-button">
+                <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
+                <div style="width: min-content;">Stop Server</div>
+            </div>
+        </a>
+
+        <!-- Loading/Error Messages -->
+        <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
+        <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
+            Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
+        </div>
+    </div>
+`;
+
+//monitor window for Discord No-bot
+const discordNobotContent = 
+`
+    <div class="p-4 space-y-4">
+        
+        <!-- Status and API Info -->
+        <div class="text-xs text-gray-700 border-t border-gray-400 pt-2" style="margin-bottom: 10px; background-color: darkgray; padding: 5px; display:flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+            <img class="js-status-icon" src="./images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
+            <p class="js-status-line">Status: Initializing...</p>
+        </div>
+        <a title="Restart" class="button discord-nobot-restart-button-wrapper js-discord-nobot-restart-button" id="discord-nobot-restart-button" onclick="discordNobotRestart()">
+            <div class="discord-nobot-restart-button">
+                <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
+                <div style="width: min-content;">Restart Bot</div>
+            </div>
+        </a>
+        <a title="Start" class="button discord-nobot-start-button-wrapper js-discord-nobot-start-button" target="_blank" id="discord-nobot-start-button" onclick="discordNobotStart()">
+            <div class="discord-nobot-start-button"">
+                <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
+                <div style="width: min-content;">Start Bot</div>
+            </div>
+        </a>
+        <a title="Stop" class="button discord-nobot-stop-button-wrapper js-discord-nobot-stop-button" target="_blank" id="discord-nobot-stop-button" onclick="discordNobotStop()">
+            <div class="discord-nobot-stop-button">
+                <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
+                <div style="width: min-content;">Stop Bot</div>
+            </div>
+        </a>
+
+        <!-- Loading/Error Messages -->
+        <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
+        <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
+            Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
+        </div>
+    </div>
+`;
 
 const internetContent = `<h1>Internet Explorer</h1><p>The best browser... in 1995.</p>`;
 
