@@ -128,3 +128,13 @@
     justify-content: space-evenly;
     max-width: 8rem;
 }
+
+/* Sunken 3D Box Effect (for graphs) */
+.players-online-basic {
+    border: 1px solid #c6c6c6;
+    border-top-color: #404040;
+    border-left-color: #404040;
+    border-bottom-color: #ffffff;
+    border-right-color: #ffffff;
+    padding: 10px;
+}

@@ -572,6 +572,7 @@ const MINECRAFT_API_STATUS = `${API_BASE_URL}/minecraft/status`;
 const MINECRAFT_API_START = `${API_BASE_URL}/minecraft/start`;
 const MINECRAFT_API_STOP = `${API_BASE_URL}/minecraft/stop`;
 const MINECRAFT_API_RESTART = `${API_BASE_URL}/minecraft/restart`;
+const MINECRAFT_API_LIST_PLAYERS = `${API_BASE_URL}/minecraft/listplayers`;
 /**
  * Main function to fetch and render minecraft server information.
  */
@@ -589,6 +590,8 @@ async function updateMinecraftMetrics(id) {
     const errorDiv = windowContainer.querySelector('.js-error-message');
     const statusLine = windowContainer.querySelector('.js-status-line');
     const statusIcon = windowContainer.querySelector('.js-status-icon');
+    const playersOnlineValue = windowContainer.querySelector('.js-minecraft-players-online-value');
+    const playersListValue = windowContainer.querySelector('.js-minecraft-players-list-value');
 
     // Only show loading on first run
     if (loadingDiv && !loadingDiv.classList.contains('hidden')) {
@@ -623,8 +626,23 @@ async function updateMinecraftMetrics(id) {
 
         if (jsonData.status === "Minecraft server is running.") {
             if (statusIcon) statusIcon.src = "./images/check-0.png";
+
+            //in the case that the server is running, also get the players online and player list. fill the below values in the window.
+            //this framework is mostly correct, but the API isnt working right now.
+
+            // const player_data = await fetch(MINECRAFT_API_LIST_PLAYERS, requestOptions);
+            // const jsonPlayerData = await player_data.json();
+
+            // if (playersOnlineValue) playersOnlineValue.textContent = `${jsonPlayerData.player_count}`;
+            // if (playersListValue) playersListValue.textContent = `${jsonPlayerData.players.join(', ')}`;
+
+            if (playersOnlineValue) playersOnlineValue.textContent = `0`;
+            if (playersListValue) playersListValue.textContent = ``;
+
         } else {
             if (statusIcon) statusIcon.src = "./images/msg_warning-0.png";
+            if (playersOnlineValue) playersOnlineValue.textContent = `0`;
+            if (playersListValue) playersListValue.textContent = ``;
         }
 
     } catch (err) {
@@ -957,24 +975,51 @@ const minecraftContent =
             <img class="js-status-icon" src="./images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
             <p class="js-status-line">Status: Initializing...</p>
         </div>
-        <a title="Restart" class="button minecraft-restart-button-wrapper js-minecraft-restart-button" id="minecraft-restart-button" onclick="minecraftRestartServer()">
-            <div class="minecraft-restart-button">
-                <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
-                <div style="width: min-content;">Restart Server</div>
+
+        <!-- Ensure the buttons and player list are side by side -->
+        <div style="display:flex; align-items: center; justify-content: space-evenly; margin-bottom: 10px;">
+
+        <!-- Control Buttons -->
+        <div style="width: 100%">
+            <a title="Restart" class="button minecraft-restart-button-wrapper js-minecraft-restart-button" id="minecraft-restart-button" onclick="minecraftRestartServer()">
+                <div class="minecraft-restart-button">
+                    <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Restart Server</div>
+                </div>
+            </a>
+            <a title="Start" class="button minecraft-start-button-wrapper js-minecraft-start-button" target="_blank" id="minecraft-start-button" onclick="minecraftStartServer()">
+                <div class="minecraft-start-button"">
+                    <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Start Server</div>
+                </div>
+            </a>
+            <a title="Stop" class="button minecraft-stop-button-wrapper js-minecraft-stop-button" target="_blank" id="minecraft-stop-button" onclick="minecraftStopServer()">
+                <div class="minecraft-stop-button">
+                    <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Stop Server</div>
+                </div>
+            </a>
+        </div>
+
+        <!--- Player list section -->
+        <div class="bg-gray-100 p-3 border border-gray-400">
+            <div class="flex items-start space-x-3" style="display:flex; align-items: center; justify-content: space-evenly; margin-top: 2px; margin-right: 6px;">
+                <div class="players-online-basic w-1/3" style="width:140px; align-items: center;">
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span>Players online: </span>
+                        <span class="js-minecraft-players-online-value"></span>
+                    </div>
+                    <!-- Simple Player List -->
+                    <!-- player list will be filled dynamically and each player will be a new row in the box-->
+                    <div class="player-list">
+                        <div class="js-minecraft-player-list">
+                            <span class="js-minecraft-players-list-value"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </a>
-        <a title="Start" class="button minecraft-start-button-wrapper js-minecraft-start-button" target="_blank" id="minecraft-start-button" onclick="minecraftStartServer()">
-            <div class="minecraft-start-button"">
-                <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
-                <div style="width: min-content;">Start Server</div>
-            </div>
-        </a>
-        <a title="Stop" class="button minecraft-stop-button-wrapper js-minecraft-stop-button" target="_blank" id="minecraft-stop-button" onclick="minecraftStopServer()">
-            <div class="minecraft-stop-button">
-                <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
-                <div style="width: min-content;">Stop Server</div>
-            </div>
-        </a>
+        </div>
+        </div>
 
         <!-- Loading/Error Messages -->
         <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
