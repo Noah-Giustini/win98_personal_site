@@ -382,7 +382,7 @@ function updateProgress(element, percent) {
  * @param {number[]} data The array of percentage values (0-100).
  */
 function drawHistoryGraph(graphElement, data) {
-    console.log("graphElement:", graphElement, "data length:", data.length);
+    // console.log("graphElement:", graphElement, "data length:", data.length);
     if (!graphElement) {
         return;
     }
