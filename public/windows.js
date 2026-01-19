@@ -628,16 +628,11 @@ async function updateMinecraftMetrics(id) {
             if (statusIcon) statusIcon.src = "./images/check-0.png";
 
             //in the case that the server is running, also get the players online and player list. fill the below values in the window.
-            //this framework is mostly correct, but the API isnt working right now.
+            const player_data = await fetch(MINECRAFT_API_LIST_PLAYERS, requestOptions);
+            const jsonPlayerData = await player_data.json();
 
-            // const player_data = await fetch(MINECRAFT_API_LIST_PLAYERS, requestOptions);
-            // const jsonPlayerData = await player_data.json();
-
-            // if (playersOnlineValue) playersOnlineValue.textContent = `${jsonPlayerData.player_count}`;
-            // if (playersListValue) playersListValue.textContent = `${jsonPlayerData.players.join(', ')}`;
-
-            if (playersOnlineValue) playersOnlineValue.textContent = `0`;
-            if (playersListValue) playersListValue.textContent = ``;
+            if (playersOnlineValue) playersOnlineValue.textContent = `${jsonPlayerData.player_count}`;
+            if (playersListValue) playersListValue.textContent = `${jsonPlayerData.players.join(', ')}`;
 
         } else {
             if (statusIcon) statusIcon.src = "./images/msg_warning-0.png";

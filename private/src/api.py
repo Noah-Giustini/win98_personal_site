@@ -7,6 +7,7 @@ import subprocess
 import os
 import psutil
 from dotenv import load_dotenv
+import time
 
 #items specifically for the resource monitor
 from flask import Flask, jsonify, request
@@ -121,20 +122,29 @@ async def minecraft_status():
 #this function currently does not work. I am not sure why but the minecraft server is not running the list command... Might have to find a way for systemd to trigger it.
 @app.post("/minecraft/listplayers", dependencies=[Depends(get_api_key)])
 async def minecraft_list_players():
-    lst_cmd = f"""/usr/bin/screen -p 0 -X eval 'stuff "say hi"\015'"""
+    num_players = 0
+    player_list = []
+    lst_cmd = f"""sudo -u giraffe /usr/bin/screen -p 0 -X eval 'stuff "list"\015' > /home/giraffe/mc_list_output.txt"""
     tail_cmd = f"tail -n 1 /home/giraffe/Minecraft/logs/latest.log"
     ret_string = run_command(lst_cmd)
+    time.sleep(0.5)  # wait a moment for the command to be processed
     ret_string = run_command(tail_cmd)
     print(ret_string)
     #example return: [12:38:19] [Server thread/INFO]: There are 1 of a max of 20 players online: boldcoffee
     #parse return string to get number of players and list of names
-    split1 = ret_string.split("There are ")[1]
-    num_players = split1.split(" of a max of ")[0]
-    split2 = split1.split("players online: ")[1]
-    if (num_players == "0"):
+
+    try:
+        split1 = ret_string.split("There are ")[1]
+        num_players = split1.split(" of a max of ")[0]
+        split2 = split1.split("players online: ")[1]
+        if (num_players == "0"):
+            player_list = []
+        else:
+            player_list = [name.strip() for name in split2.split(",")]
+    except Exception as e:
+        num_players = 0
         player_list = []
-    else:
-        player_list = [name.strip() for name in split2.split(",")]
+    
     return {"player_count": num_players, "players": player_list}
 
 #discord bot endpoints
