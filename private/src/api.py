@@ -82,7 +82,7 @@ def get_system_metrics():
         gpu_temp_cmd = r"""tegrastats --interval 100 | head -n 1 | awk '{for(i=1;i<=NF;i++){if($i=="GR3D_FREQ") g=$(i+1); if($i~"cpu@") {split($i,a,"@"); c=a[2]}} print g","c}'"""
         gpu_temp_string = run_command(gpu_temp_cmd)
         gpu_temp_string = gpu_temp_string.strip().split(",")
-        gpu_percent = float(gpu_temp_string[0].strip("%"))
+        gpu_percent = float(gpu_temp_string[0].strip().split("%")[0])
         cpu_temp = float(gpu_temp_string[1].strip("C"))
     else:
          #the below items are placeholders incase the API is not running on a jetson device.
