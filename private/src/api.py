@@ -63,23 +63,29 @@ def get_system_metrics():
     mem_total_gb = round(memory.total / (1024 ** 3), 1)
     mem_percent = memory.percent
 
-    # 3. Temperature (Platform-dependent, so we use a safe simulation)
-    # If running on Linux/macOS, psutil.sensors_temps() might be used, but we simulate for portability.
-    # Simulation: Generate a realistic CPU temperature (30C + up to 15C based on CPU usage)
-    base_temp = 30 
-    temp_c = round(base_temp + (cpu_percent * 0.15))
+    # 3. GPU Usage and Temperature (specific to NVIDIA Jetson devices)
+    #this info is pulled through tegrastats. we parse the output to get gpu usage and cpu temp but there is more info available if needed.
+    #we set interval 100 to get a fast response. head is used to only get the first line and then kill the process.
+    gpu_temp_cmd = r"""tegrastats --interval 100 | head -n 1 | awk '{for(i=1;i<=NF;i++){if($i=="GR3D_FREQ") g=$(i+1); if($i~"cpu@") {split($i,a,"@"); c=a[2]}} print g","c}'"""
+    gpu_temp_string = run_command(gpu_temp_cmd)
+    gpu_temp_string = gpu_temp_string.strip().split(",")
+    gpu_percent = float(gpu_temp_string[0].strip("%"))
+    cpu_temp = float(gpu_temp_string[1].strip("C"))
 
-    # 4. GPU Usage (Highly platform-dependent, so we use a simulation)
-    # If using NVIDIA, you'd use 'pynvml'. If AMD, another tool.
-    # Simulation: GPU usage is often correlated with system activity, so link it to a function of CPU%
-    gpu_percent = round((cpu_percent * 0.5) % 100) # Simple formula for simulation
+    #the below items are placeholders incase the API is not running on a jetson device.
+    # For simulation purposes, we will generate a fake temperature based on CPU usage
+    # base_temp = 30 
+    # cpu_temp = round(base_temp + (cpu_percent * 0.15))
+
+    # Simulated GPU usage based on CPU usage
+    # gpu_percent = round((cpu_percent * 0.5) % 100) # Simple formula for simulation
 
     return {
         'cpu_percent': cpu_percent,
         'mem_used_gb': mem_used_gb,
         'mem_total_gb': mem_total_gb,
         'mem_percent': mem_percent,
-        'temp_c': temp_c,
+        'temp_c': cpu_temp,
         'gpu_percent': gpu_percent
     }
 
