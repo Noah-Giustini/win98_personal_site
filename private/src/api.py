@@ -29,6 +29,7 @@ API_KEY_NAME = os.getenv("API_KEY_NAME", "access_token")
 SERVER_IP = os.getenv("SERVER_IP", "0.0.0.0")
 SERVER_PORT = int(os.getenv("SERVER_PORT", 8000))
 MC_SERVER_DIR = os.getenv("MC_SERVER_DIR", "/opt/minecraft/server")
+DISCORD_NOBOT_REPO_DIR = os.getenv("DISCORD_NOBOT_REPO_DIR", "/home/giraffe/repos/discord_no_bot")
 
 jetson_device = False
 # Check if running on NVIDIA Jetson device
@@ -186,6 +187,13 @@ async def discord_nobot_stop():
     cmd = f"sudo systemctl stop no-bot"
     run_command(cmd)
     return {"status": "Discord No-Bot stopping..."}
+
+@app.post("/discord/no/update", dependencies=[Depends(get_api_key)])
+async def discord_nobot_update():
+    # Go to the repo location, stash .env, pull latest master, unstash .env, return to original directory
+    cmd = f"pushd {DISCORD_NOBOT_REPO_DIR} > /dev/null && git stash push -m 'env' .env && git pull origin master && git stash pop && popd > /dev/null"
+    run_command(cmd)
+    return {"status": "Discord No-Bot updating..."}
 
 @app.post("/discord/no/status", dependencies=[Depends(get_api_key)])
 async def discord_nobot_status():

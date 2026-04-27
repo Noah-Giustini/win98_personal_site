@@ -726,6 +726,7 @@ const DISCORD_NOBOT_API_STATUS = `${API_BASE_URL}/discord/no/status`;
 const DISCORD_NOBOT_API_START = `${API_BASE_URL}/discord/no/start`;
 const DISCORD_NOBOT_API_STOP = `${API_BASE_URL}/discord/no/stop`;
 const DISCORD_NOBOT_API_RESTART = `${API_BASE_URL}/discord/no/restart`;
+const DISCORD_NOBOT_API_UPDATE = `${API_BASE_URL}/discord/no/update`;
 /**
  * Main function to fetch and render minecraft server information.
  */
@@ -857,6 +858,22 @@ async function discordNobotStop() {
         const res = await fetch(DISCORD_NOBOT_API_STOP, requestOptions);
     } catch(err){ 
         alert('Failed to stop Discord No-Bot: ' + err.message);
+    }
+}
+
+async function discordNobotUpdate() {
+    try{ 
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [API_KEY_NAME]: API_KEY
+            }
+        };
+
+        const res = await fetch(DISCORD_NOBOT_API_UPDATE, requestOptions);
+    } catch(err){ 
+        alert('Failed to update Discord No-Bot: ' + err.message);
     }
 }
 
@@ -1034,24 +1051,34 @@ const discordNobotContent =
             <img class="js-status-icon" src="./images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
             <p class="js-status-line">Status: Initializing...</p>
         </div>
-        <a title="Restart" class="button discord-nobot-restart-button-wrapper js-discord-nobot-restart-button" id="discord-nobot-restart-button" onclick="discordNobotRestart()">
-            <div class="discord-nobot-restart-button">
-                <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
-                <div style="width: min-content;">Restart Bot</div>
-            </div>
-        </a>
-        <a title="Start" class="button discord-nobot-start-button-wrapper js-discord-nobot-start-button" target="_blank" id="discord-nobot-start-button" onclick="discordNobotStart()">
-            <div class="discord-nobot-start-button"">
-                <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
-                <div style="width: min-content;">Start Bot</div>
-            </div>
-        </a>
-        <a title="Stop" class="button discord-nobot-stop-button-wrapper js-discord-nobot-stop-button" target="_blank" id="discord-nobot-stop-button" onclick="discordNobotStop()">
-            <div class="discord-nobot-stop-button">
-                <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
-                <div style="width: min-content;">Stop Bot</div>
-            </div>
-        </a>
+
+        <!-- Control Buttons Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 10px;">
+            <a title="Start" class="button discord-nobot-start-button-wrapper js-discord-nobot-start-button" id="discord-nobot-start-button" onclick="discordNobotStart()">
+                <div class="discord-nobot-start-button">
+                    <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Start Bot</div>
+                </div>
+            </a>
+            <a title="Stop" class="button discord-nobot-stop-button-wrapper js-discord-nobot-stop-button" id="discord-nobot-stop-button" onclick="discordNobotStop()">
+                <div class="discord-nobot-stop-button">
+                    <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Stop Bot</div>
+                </div>
+            </a>
+            <a title="Restart" class="button discord-nobot-restart-button-wrapper js-discord-nobot-restart-button" id="discord-nobot-restart-button" onclick="discordNobotRestart()">
+                <div class="discord-nobot-restart-button">
+                    <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Restart Bot</div>
+                </div>
+            </a>
+            <a title="Update" class="button discord-nobot-update-button-wrapper js-discord-nobot-update-button" id="discord-nobot-update-button" onclick="discordNobotUpdate()">
+                <div class="discord-nobot-update-button">
+                    <img src="./images/gps-1.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Update Bot</div>
+                </div>
+            </a>
+        </div>
 
         <!-- Loading/Error Messages -->
         <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>

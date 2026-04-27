@@ -21,6 +21,7 @@ html {
 .discord-nobot-restart-button,
 .discord-nobot-start-button,
 .discord-nobot-stop-button,
+.discord-nobot-update-button,
 button {
     border: 0;
     cursor: pointer
