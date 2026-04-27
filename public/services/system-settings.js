@@ -122,7 +122,7 @@ async function systemSettingsUpdate() {
             }
         };
 
-        const res = await fetch(SYSTEM_SETTINGS_API_UPDATE, requestOptions);
+        const res = await fetch(SYSTEM_API_UPDATE, requestOptions);
     } catch(err){ 
         alert('Failed to update System Settings: ' + err.message);
     }
