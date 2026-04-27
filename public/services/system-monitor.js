@@ -56,7 +56,7 @@ function drawHistoryGraph(graphElement, data) {
     });
 }
 
-const METRICS_API = `${API_BASE_URL}/system/metrics`;
+const METRICS_API = `${API_BASE_URL}/monitor/metrics`;
 
 /**
  * Main function to fetch and render metrics for a specific window instance.

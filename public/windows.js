@@ -421,6 +421,10 @@ newAppLinks.forEach(link => {
                 startMenu.style.display = 'none';
                 onOpenCallback = initializeDiscordNobotMonitor;
                 break;
+            case 'system-settings':
+                content = systemSettingsContent;
+                startMenu.style.display = 'none';
+                break;
             case 'internet':
                 content = internetContent;
                 break;
@@ -561,6 +565,29 @@ const discordNobotContent =
         <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
         <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
             Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
+        </div>
+    </div>
+`;
+
+//monitor window for System Settings
+const systemSettingsContent = 
+`
+    <div class="p-4 space-y-4">
+
+        <!-- Control Buttons Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 10px; margin-top: .5rem;">
+            <a title="Restart" class="button system-settings-restart-button-wrapper js-system-settings-restart-button" id="system-settings-restart-button" onclick="systemSettingsRestart()">
+                <div class="system-settings-restart-button">
+                    <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Restart API</div>
+                </div>
+            </a>
+            <a title="Update" class="button system-settings-update-button-wrapper js-system-settings-update-button" id="system-settings-update-button" onclick="systemSettingsUpdate()">
+                <div class="system-settings-update-button">
+                    <img src="./images/gps-1.png" style="width:25%; height:25%;">
+                    <div style="width: min-content;">Update Site+API</div>
+                </div>
+            </a>
         </div>
     </div>
 `;

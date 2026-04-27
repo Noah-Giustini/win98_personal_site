@@ -30,6 +30,7 @@ SERVER_IP = os.getenv("SERVER_IP", "0.0.0.0")
 SERVER_PORT = int(os.getenv("SERVER_PORT", 8000))
 MC_SERVER_DIR = os.getenv("MC_SERVER_DIR", "/opt/minecraft/server")
 DISCORD_NOBOT_REPO_DIR = os.getenv("DISCORD_NOBOT_REPO_DIR", "/home/giraffe/repos/discord_no_bot")
+SITE_REPO_DIR = os.getenv("SITE_REPO_DIR", "/home/giraffe/repos//win98_personal_site/private/src")
 
 jetson_device = False
 # Check if running on NVIDIA Jetson device
@@ -205,13 +206,8 @@ async def discord_nobot_status():
         ret = "Discord No-Bot is not running or has encountered an error."
     return {"status": ret.strip()}
 
-#system endpoints
-@app.post("/system/reboot", dependencies=[Depends(get_api_key)])
-async def system_reboot():
-    os.system("sudo reboot")
-    return {"status": "Rebooting..."}
-
-@app.get("/system/metrics", dependencies=[Depends(get_api_key)])
+#system monitor endpoints
+@app.get("/monitor/metrics", dependencies=[Depends(get_api_key)])
 async def system_metrics():
     try:
         metrics = get_system_metrics()
@@ -222,6 +218,18 @@ async def system_metrics():
             status_code=500, 
             detail="Failed to get system metrics."
         )
+    
+#system endpoints
+@app.post("/system/reboot", dependencies=[Depends(get_api_key)])
+async def system_reboot():
+    os.system("sudo reboot")
+    return {"status": "Rebooting..."}   
+#add api endpoint for updating the whole site by doing a git pull in the repo. Then the deploy script can be run.
+@app.post("/system/update", dependencies=[Depends(get_api_key)])
+async def site_update():
+    cmd = f"pushd {SITE_REPO_DIR} > /dev/null && git pull origin master && ./deploy.sh && popd > /dev/null"
+    run_command(cmd)
+    return {"status": "Site updating..."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host=SERVER_IP, port=SERVER_PORT)
