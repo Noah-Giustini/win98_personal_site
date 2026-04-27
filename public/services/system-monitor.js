@@ -208,7 +208,7 @@ function initializeSystemMonitor(id) {
     // Set API endpoint display 
     const windowContainer = document.getElementById(`${id}-window-container`);
     if (windowContainer) {
-        windowContainer.querySelector('.js-api-endpoint-display').textContent = METRICS_API;
+        // windowContainer.querySelector('.js-api-endpoint-display').textContent = METRICS_API;
         windowContainer.querySelector('.js-api-url').textContent = API_BASE_URL;
     }
 }

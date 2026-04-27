@@ -682,14 +682,43 @@ const systemMonitorContentHTML = `
 
 
 // --- Desktop Icon Click Handlers ---
-document.getElementById("about-me-icon-div").onclick = function() {
-    const iconImg = this.querySelector('img');
-    const iconSrc = iconImg ? iconImg.src : null; 
-    windowManager.openWindow('about-me', 'About Me', aboutMeContent, iconSrc);
-};
+const desktopAppIcons = document.querySelectorAll('.js-desktop-app');
+desktopAppIcons.forEach(icon => {
+    icon.addEventListener('click', function(e) {
+        e.preventDefault();
+        const appId = this.getAttribute('data-app-id');
+        const titleMap = {
+            'notepad': 'Notepad',
+            'minecraft': 'Minecraft',
+            'discord-nobot': 'Discord No-bot',
+            'sysmon': 'System Monitor',
+            'portfolio': 'My Portfolio',
+            "about-me": "About Me"
+        };
+        const contentMap = {
+            'notepad': notepadContent,
+            'minecraft': minecraftContent,
+            'discord-nobot': discordNobotContent,
+            'sysmon': systemMonitorContentHTML,
+            'portfolio': portfolioContent,
+            "about-me": aboutMeContent
+        };
+        const callbackMap = {
+            'notepad': null,
+            'minecraft': initializeMinecraftMonitor,
+            'discord-nobot': initializeDiscordNobotMonitor,
+            'sysmon': initializeSystemMonitor,
+            'portfolio': null,
+            "about-me": null
+        };
 
-document.getElementById("work-experience-icon-div").onclick = function() {
-    const iconImg = this.querySelector('img');
-    const iconSrc = iconImg ? iconImg.src : null;
-    windowManager.openWindow('portfolio', 'My Portfolio', portfolioContent, iconSrc);
-};
+        const iconImg = this.querySelector('img');
+        const iconSrc = iconImg ? iconImg.src : null;
+
+        const title = titleMap[appId] || appId;
+        const content = contentMap[appId] || `<h1>${title}</h1>`;
+        const cb = callbackMap[appId] || null;
+
+        windowManager.openWindow(appId, title, content, iconSrc, cb);
+    });
+});
