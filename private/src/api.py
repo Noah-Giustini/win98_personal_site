@@ -228,9 +228,12 @@ async def system_reboot():
 @app.post("/system/update", dependencies=[Depends(get_api_key)])
 async def site_update():    
     # Update the site: git pull and run deploy script
-    cmd = f"cd {SITE_REPO_DIR} && git pull origin master && sudo ./deploy.sh"
-    result = run_command(cmd)
-    return {"status": f"Site updated: {result}"}
+    cmd = f"cd {SITE_REPO_DIR} && git pull origin master"
+    pull_return = run_command(cmd)
+
+    cmd = f"cd {SITE_REPO_DIR} && sudo ./deploy.sh"
+    deploy_return = run_command(cmd)
+    return {"status": f"Site updated: {pull_return}, Deploy output: {deploy_return}"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host=SERVER_IP, port=SERVER_PORT)
