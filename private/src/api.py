@@ -30,7 +30,7 @@ SERVER_IP = os.getenv("SERVER_IP", "0.0.0.0")
 SERVER_PORT = int(os.getenv("SERVER_PORT", 8000))
 MC_SERVER_DIR = os.getenv("MC_SERVER_DIR", "/opt/minecraft/server")
 DISCORD_NOBOT_REPO_DIR = os.getenv("DISCORD_NOBOT_REPO_DIR", "/home/giraffe/repos/discord_no_bot")
-SITE_REPO_DIR = os.getenv("SITE_REPO_DIR", "/home/giraffe/repos//win98_personal_site/private/src")
+SITE_REPO_DIR = os.getenv("SITE_REPO_DIR", "/home/giraffe/repos/win98_personal_site/private/src")
 
 jetson_device = False
 # Check if running on NVIDIA Jetson device
