@@ -34,6 +34,12 @@
 				</div>
 			</div>
 			<div class="recycle-bin ui-icon">
+				<div id="zomboid-icon-div" class="ui-icon-container js-desktop-app" data-app-id="zomboid">
+					<img width="48" height="48" src="./images/zomboid.png">
+					<span style="color:white;">Project Zomboid</span>
+				</div>
+			</div>
+			<div class="recycle-bin ui-icon">
 				<div id="discord-nobot-icon-div" class="ui-icon-container js-desktop-app" data-app-id="discord-nobot">
 					<img width="48" height="48" src="./images/discord.png">
 					<span style="color:white;">Discord No-bot</span>
@@ -78,6 +84,11 @@
 				<a class="start-menu-item js-app-link" data-app-id="minecraft" data-app-title="Minecraft">
 					<img src="./images/minecraft-grass.png" class="menu-icon">
 					<span>Minecraft</span>
+				</a>
+
+				<a class="start-menu-item js-app-link" data-app-id="zomboid" data-app-title="Project Zomboid">
+					<img src="./images/zomboid.png" class="menu-icon">
+					<span>Project Zomboid</span>
 				</a>
 				
 				<a class="start-menu-item js-app-link" data-app-id="discord-nobot" data-app-title="Discord No-bot">
@@ -127,11 +138,12 @@
 	</div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="clock.js"></script>
+<script src="main.js"></script>
 <script src="windows.js"></script>
 <script src="services/system-monitor.js"></script>
 <script src="services/minecraft.js"></script>
+<script src="services/zomboid.js"></script>
 <script src="services/discord-nobot.js"></script>
 <script src="services/system-settings.js"></script>
-<script src="main.js"></script>
 </body>
 </html>

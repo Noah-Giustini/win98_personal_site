@@ -42,6 +42,9 @@ class WindowManager {
     if (id === 'sysmon') {
         windowContainer.style.width = '450px'; 
         windowContainer.style.height = '350px';
+    } else if (id === 'zomboid') {
+        windowContainer.style.width = '520px';
+        windowContainer.style.height = '360px';
     } else {
         windowContainer.style.width = '300px'; 
         windowContainer.style.height = '200px';
@@ -350,9 +353,11 @@ class WindowManager {
 }
 
 // --- API Configuration ---
-const API_BASE_URL = 'http://10.0.1.3:8000'; 
-const API_KEY_NAME = "access_token";
-const API_KEY = "key";
+const frontendConfig = window.GIRAFFE_CONFIG || {};
+const API_BASE_URL = frontendConfig.apiBaseUrl || 'http://10.0.1.3:8000';
+const NEBULA_API_BASE_URL = frontendConfig.nebulaApiBaseUrl || API_BASE_URL;
+const API_KEY_NAME = frontendConfig.apiKeyName || 'access_token';
+const API_KEY = frontendConfig.apiKey || 'key';
 
 // ----------------------------------------------------------------------
 // --- APPLICATION CONTENT AND IMPLEMENTATION ---
@@ -415,6 +420,11 @@ newAppLinks.forEach(link => {
                 content = minecraftContent;
                 startMenu.style.display = 'none';
                 onOpenCallback = initializeMinecraftMonitor;
+                break;
+            case 'zomboid':
+                content = zomboidContent;
+                startMenu.style.display = 'none';
+                onOpenCallback = initializeZomboidMonitor;
                 break;
             case 'discord-nobot':
                 content = discordNobotContent;
@@ -518,6 +528,71 @@ const minecraftContent =
         <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
         <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
             Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
+        </div>
+    </div>
+`;
+
+//monitor window for Project Zomboid server
+const zomboidContent =
+`
+    <div class="p-4 space-y-4">
+
+        <div class="text-xs text-gray-700 border-t border-gray-400 pt-2" style="margin-bottom: 10px; background-color: darkgray; padding: 5px; display:flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+            <img class="js-status-icon" src="./images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
+            <p class="js-status-line">Status: Initializing...</p>
+        </div>
+
+        <!-- Control Buttons - full width 2x2 grid -->
+        <div style="display:flex; flex-direction: row; flex-wrap: wrap; justify-content: space-evenly; gap: 6px; margin-bottom: 10px;">
+            <a title="Start" class="button zomboid-start-button-wrapper js-zomboid-start-button" id="zomboid-start-button" onclick="zomboidStartServer()">
+                <div class="zomboid-start-button">
+                    <img src="./images/internet_options-0.png">
+                    <div>Start</div>
+                </div>
+            </a>
+            <a title="Stop" class="button zomboid-stop-button-wrapper js-zomboid-stop-button" id="zomboid-stop-button" onclick="zomboidStopServer()">
+                <div class="zomboid-stop-button">
+                    <img src="./images/msg_error-0.png">
+                    <div>Stop</div>
+                </div>
+            </a>
+            <a title="Restart" class="button zomboid-restart-button-wrapper js-zomboid-restart-button" id="zomboid-restart-button" onclick="zomboidRestartServer()">
+                <div class="zomboid-restart-button">
+                    <img src="./images/netmeeting-2.png">
+                    <div>Restart</div>
+                </div>
+            </a>
+            <a title="Update Mods" class="button zomboid-mods-update-button-wrapper js-zomboid-mods-update-button" id="zomboid-mods-update-button" onclick="zomboidUpdateMods()">
+                <div class="zomboid-mods-update-button">
+                    <img src="./images/gps-1.png">
+                    <div>Update Mods</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Player List -->
+        <div class="bg-gray-100 p-3 border border-gray-400" style="margin-bottom: 10px;">
+            <div class="players-online-basic" style="width:100%;">
+                <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span>Players online: </span>
+                    <span class="js-zomboid-players-online-value">0</span>
+                </div>
+                <div class="player-list">
+                    <div class="js-zomboid-player-list">
+                        <span class="js-zomboid-players-list-value"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mods Status -->
+        <div class="text-xs text-gray-700 border border-gray-400" style="padding: 4px; margin-bottom: 8px; background-color: #efefef;">
+            <strong>Mods:</strong> <span class="js-zomboid-mods-status">No updates started.</span>
+        </div>
+
+        <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to Zomboid server...</div>
+        <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
+            Connection Failed. Ensure Zomboid API is running on <span class="js-api-url"></span>.
         </div>
     </div>
 `;
@@ -717,6 +792,7 @@ desktopAppIcons.forEach(icon => {
         const titleMap = {
             'notepad': 'Notepad',
             'minecraft': 'Minecraft',
+            'zomboid': 'Project Zomboid',
             'discord-nobot': 'Discord No-bot',
             'sysmon': 'System Monitor',
             'portfolio': 'My Portfolio',
@@ -725,6 +801,7 @@ desktopAppIcons.forEach(icon => {
         const contentMap = {
             'notepad': notepadContent,
             'minecraft': minecraftContent,
+            'zomboid': zomboidContent,
             'discord-nobot': discordNobotContent,
             'sysmon': systemMonitorContentHTML,
             'portfolio': portfolioContent,
@@ -733,6 +810,7 @@ desktopAppIcons.forEach(icon => {
         const callbackMap = {
             'notepad': null,
             'minecraft': initializeMinecraftMonitor,
+            'zomboid': initializeZomboidMonitor,
             'discord-nobot': initializeDiscordNobotMonitor,
             'sysmon': initializeSystemMonitor,
             'portfolio': null,

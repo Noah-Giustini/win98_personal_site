@@ -7,6 +7,7 @@
 
 //system APIs
 const SYSTEM_API_UPDATE = `${API_BASE_URL}/system/update`;
+const NEBULA_SYSTEM_API_UPDATE = `${NEBULA_API_BASE_URL}/system/update`;
 const SYSTEM_API_REBOOT = `${API_BASE_URL}/system/reboot`;
 
 /**
@@ -122,7 +123,41 @@ async function systemSettingsUpdate() {
             }
         };
 
-        const res = await fetch(SYSTEM_API_UPDATE, requestOptions);
+        const [mainRes, nebulaRes] = await Promise.allSettled([
+            fetch(SYSTEM_API_UPDATE, requestOptions),
+            fetch(NEBULA_SYSTEM_API_UPDATE, requestOptions)
+        ]);
+
+        const failures = [];
+
+        if (mainRes.status === 'rejected') {
+            failures.push('main API');
+        }
+
+        if (nebulaRes.status === 'rejected') {
+            failures.push('nebula API');
+        }
+
+        if (failures.length) {
+            alert(`Update request failed for: ${failures.join(', ')}`);
+            return;
+        }
+
+        const mainJson = await mainRes.value.json();
+        const nebulaJson = await nebulaRes.value.json();
+
+        const mainFailed = !mainRes.value.ok || /failed/i.test(mainJson.status || '');
+        const nebulaFailed = !nebulaRes.value.ok || /failed/i.test(nebulaJson.status || '');
+
+        if (mainFailed || nebulaFailed) {
+            const failedTargets = [];
+            if (mainFailed) failedTargets.push('main API');
+            if (nebulaFailed) failedTargets.push('nebula API');
+            alert(`Update request completed with errors on: ${failedTargets.join(', ')}`);
+            return;
+        }
+
+        alert('Update request sent to both systems.');
     } catch(err){ 
         alert('Failed to update System Settings: ' + err.message);
     }

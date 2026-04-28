@@ -95,6 +95,10 @@
 .minecraft-restart-button,
 .minecraft-start-button,
 .minecraft-stop-button,
+.zomboid-restart-button,
+.zomboid-start-button,
+.zomboid-stop-button,
+.zomboid-mods-update-button,
 .discord-nobot-restart-button,
 .discord-nobot-start-button,
 .discord-nobot-stop-button,
@@ -122,6 +126,10 @@
 .minecraft-restart-button,
 .minecraft-start-button,
 .minecraft-stop-button,
+.zomboid-restart-button,
+.zomboid-start-button,
+.zomboid-stop-button,
+.zomboid-mods-update-button,
 .discord-nobot-restart-button,
 .discord-nobot-start-button,
 .discord-nobot-stop-button,
@@ -133,6 +141,29 @@
     align-items: center; 
     justify-content: space-evenly;
     max-width: 8rem;
+}
+
+/* Zomboid buttons: uniform size based on largest label */
+.zomboid-restart-button,
+.zomboid-start-button,
+.zomboid-stop-button,
+.zomboid-mods-update-button {
+    justify-content: center;
+    gap: 6px;
+    width: 100px;
+    height: 36px;
+    max-width: none;
+    margin-right: 0;
+    box-sizing: border-box;
+}
+
+.zomboid-restart-button img,
+.zomboid-start-button img,
+.zomboid-stop-button img,
+.zomboid-mods-update-button img {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
 }
 
 /* Sunken 3D Box Effect (for graphs) */

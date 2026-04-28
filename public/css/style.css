@@ -70,3 +70,14 @@ input {
     position: relative;
     z-index: 10;
 }
+
+.player-list {
+    max-height: 120px;
+    overflow-y: auto;
+    word-break: break-word;
+}
+
+.js-zomboid-player-list,
+.js-minecraft-player-list {
+    line-height: 1.35;
+}

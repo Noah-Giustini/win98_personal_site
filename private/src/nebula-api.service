@@ -1,0 +1,13 @@
+[Unit]
+Description=Nebula API (Project Zomboid Management)
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/home/giraffe/repos/win98_personal_site/private/src/
+ExecStart=/usr/bin/python3 nebula_api.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

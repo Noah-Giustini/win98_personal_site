@@ -1,3 +1,11 @@
+// Global frontend config for service APIs.
+window.GIRAFFE_CONFIG = {
+	apiBaseUrl: 'http://10.0.1.3:8000',
+	nebulaApiBaseUrl: 'http://10.0.1.4:8000',
+	apiKeyName: 'access_token',
+	apiKey: 'key'
+};
+
 function SortByName(a, b){ 
 	var aName = a.size;
 	var bName = b.size;
