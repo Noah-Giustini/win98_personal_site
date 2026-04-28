@@ -228,10 +228,10 @@ async def system_reboot():
 @app.post("/system/update", dependencies=[Depends(get_api_key)])
 async def site_update():
     cmd = f"pushd {SITE_REPO_DIR} > /dev/null && git pull origin master && popd > /dev/null"
-    run_command(cmd)
+    pull_return = run_command(cmd)
     cmd = f"sudo {SITE_REPO_DIR}/deploy.sh"
-    run_command(cmd)
-    return {"status": "Site updating..."}
+    deploy_return = run_command(cmd)
+    return {"status": f"Site updated: {pull_return}, Deploy output: {deploy_return}"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host=SERVER_IP, port=SERVER_PORT)
