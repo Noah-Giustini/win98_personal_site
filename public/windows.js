@@ -454,8 +454,8 @@ const aboutMeContent = `
     <div class="icon-wrap">
       <div class="icon-outer-container">
         <div class="icon-inner-container" style="padding:20px; text-align:center;">
-          <p>Welcome to my profile!</p>
-          <ul><li>Info 1</li><li>Info 2</li></ul>
+          <p>Hi! My name is Noah.</p>
+          <ul><li>キリンが好きだよ</li><li>このサイトを作った</li></ul>
         </div>
       </div>
     </div>`;
