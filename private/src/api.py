@@ -15,7 +15,7 @@ from flask_cors import CORS
 
 def run_command(command: str):
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, executable='/bin/bash')
         return result.stdout if result.returncode == 0 else result.stderr
     except Exception as e:
         return str(e)
@@ -227,11 +227,14 @@ async def system_reboot():
 #add api endpoint for updating the whole site by doing a git pull in the repo. Then the deploy script can be run.
 @app.post("/system/update", dependencies=[Depends(get_api_key)])
 async def site_update():
-    cmd = f"pushd {SITE_REPO_DIR} > /dev/null && git pull origin master && popd > /dev/null"
-    pull_return = run_command(cmd)
-    cmd = f"sudo {SITE_REPO_DIR}/deploy.sh"
-    deploy_return = run_command(cmd)
-    return {"status": f"Site updated: {pull_return}, Deploy output: {deploy_return}"}
+    # Configure git to trust the repository directory (handles ownership issues)
+    config_cmd = f"git config --global --add safe.directory {SITE_REPO_DIR}"
+    run_command(config_cmd)
+    
+    # Update the site: git pull and run deploy script
+    cmd = f"cd {SITE_REPO_DIR} && git pull origin master && sudo ./deploy.sh"
+    result = run_command(cmd)
+    return {"status": f"Site updated: {result}"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host=SERVER_IP, port=SERVER_PORT)
