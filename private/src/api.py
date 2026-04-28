@@ -227,7 +227,7 @@ async def system_reboot():
 #add api endpoint for updating the whole site by doing a git pull in the repo. Then the deploy script can be run.
 @app.post("/system/update", dependencies=[Depends(get_api_key)])
 async def site_update():
-    cmd = f"pushd {SITE_REPO_DIR} > /dev/null && git pull origin master && ./deploy.sh && popd > /dev/null"
+    cmd = f"pushd {SITE_REPO_DIR} > /dev/null && git pull origin master && sudo ./deploy.sh && popd > /dev/null"
     run_command(cmd)
     return {"status": "Site updating..."}
 
