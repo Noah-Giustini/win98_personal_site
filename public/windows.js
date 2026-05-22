@@ -439,7 +439,7 @@ newAppLinks.forEach(link => {
                 content = internetContent;
                 break;
             case 'ollama':
-                content = ollamaContentHTML; // Added content for Ollama application
+                content = ollamaWindowContent; // Added content for Ollama application
                 iconSrc = './images/ollama-icon.png'; // Added icon source for Ollama application
                 startMenu.style.display = 'none';
                 onOpenCallback = initializeOllamaMonitor; // Added callback for opening Ollama window
