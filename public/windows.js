@@ -438,6 +438,12 @@ newAppLinks.forEach(link => {
             case 'internet':
                 content = internetContent;
                 break;
+            case 'ollama':
+                content = ollamaContentHTML; // Added content for Ollama application
+                iconSrc = './images/ollama-icon.png'; // Added icon source for Ollama application
+                startMenu.style.display = 'none';
+                onOpenCallback = initializeOllamaMonitor; // Added callback for opening Ollama window
+                break;
             default:
                 content = `<h1>${title}</h1><p>Content for ${title}.</p>`;
         }
@@ -671,6 +677,40 @@ const systemSettingsContent =
     </div>
 `;
 
+// controls for Ollama window
+const ollamaWindowContent = `
+    <div class="p-4 space-y-4">
+
+    <!-- Control Buttons Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 10px;">
+        <a title="Start" class="button ollama-start-button-wrapper js-ollama-start-button" id="ollama-start-button" onclick="ollamaWindowStart()">
+        <div class="ollama-start-button">
+            <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
+            <div style="width: min-content;">Start Ollama</div>
+        </div>
+        </a>
+        <a title="Stop" class="button ollama-stop-button-wrapper js-ollama-stop-button" id="ollama-stop-button" onclick="ollamaWindowStop()">
+        <div class="ollama-stop-button">
+            <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
+            <div style="width: min-content;">Stop Ollama</div>
+        </div>
+        </a>
+        <a title="Restart" class="button ollama-restart-button-wrapper js-ollama-restart-button" id="ollama-restart-button" onclick="ollamaWindowRestart()">
+        <div class="ollama-restart-button">
+            <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
+            <div style="width: min-content;">Restart Ollama</div>
+        </div>
+        </a>
+    </div>
+
+    <!-- Loading/Error Messages -->
+    <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
+    <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
+        Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
+    </div>
+    </div>
+`;
+
 const internetContent = `<h1>Internet Explorer</h1><p>The best browser... in 1995.</p>`;
 
 /**
@@ -799,6 +839,7 @@ desktopAppIcons.forEach(icon => {
             'zomboid': 'Project Zomboid',
             'discord-nobot': 'Discord No-bot',
             'sysmon': 'System Monitor',
+            'ollama': 'Ollama',
             'portfolio': 'My Portfolio',
             "about-me": "About Me"
         };
@@ -808,6 +849,7 @@ desktopAppIcons.forEach(icon => {
             'zomboid': zomboidContent,
             'discord-nobot': discordNobotContent,
             'sysmon': systemMonitorContentHTML,
+            'ollama': ollamaWindowContent,
             'portfolio': portfolioContent,
             "about-me": aboutMeContent
         };
@@ -817,6 +859,7 @@ desktopAppIcons.forEach(icon => {
             'zomboid': initializeZomboidMonitor,
             'discord-nobot': initializeDiscordNobotMonitor,
             'sysmon': initializeSystemMonitor,
+            'ollama': initializeOllamaMonitor,
             'portfolio': null,
             "about-me": null
         };

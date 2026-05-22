@@ -47,10 +47,16 @@
 			</div>
 			<div class="recycle-bin ui-icon">
 				<div id="sysmon-icon-div" class="ui-icon-container js-desktop-app" data-app-id="sysmon">
-					<img width="32" height="32" src="./images/computer_taskmgr-0.png">
+					<img width="48" height="48" src="./images/computer_taskmgr-0.png">
 					<span style="color:white;">System Monitor</span>
 				</div>
-			</div>		
+			</div>
+			<div class="recycle-bin ui-icon">
+				<div id="ollama-icon-div" class="ui-icon-container js-desktop-app" data-app-id="ollama">
+					<img width="48" height="48" src="./images/ollama.png">
+					<span style="color:white;">Ollama</span>
+				</div>
+			</div>	
 		</div>
 		<!-- bottom right corner -->
 		<div class="ui-desktop-br">
@@ -100,6 +106,11 @@
 					<img src="./images/computer_taskmgr-0.png" class="menu-icon">
 					System Monitor
 				</a>
+
+				<a class="start-menu-item js-app-link" data-app-id="ollama" data-app-title="Ollama">
+					<img src="./images/ollama.png" class="menu-icon">
+					Ollama
+				</a>
 				
 				<hr style="border-top: 1px solid #c0c0c0; border-bottom: 1px solid #808080; margin: 4px 0; height: 0;">
 
@@ -145,5 +156,6 @@
 <script src="services/zomboid.js"></script>
 <script src="services/discord-nobot.js"></script>
 <script src="services/system-settings.js"></script>
+<script src="services/ollama.js"></script>
 </body>
 </html>

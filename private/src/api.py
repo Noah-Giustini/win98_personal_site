@@ -224,6 +224,36 @@ async def system_metrics():
 async def system_reboot():
     os.system("sudo reboot")
     return {"status": "Rebooting..."}   
+
+#ollama endpoints
+@app.post("/ollama/start", dependencies=[Depends(get_api_key)])
+async def ollama_start():
+    cmd = f"sudo systemctl start ollama"
+    run_command(cmd)
+    return {"status": "Ollama server starting..."}
+
+@app.post("/ollama/stop", dependencies=[Depends(get_api_key)])
+async def ollama_stop():
+    cmd = f"sudo systemctl stop ollama"
+    run_command(cmd)
+    return {"status": "Ollama server stopping..."}
+
+@app.post("/ollama/restart", dependencies=[Depends(get_api_key)])
+async def ollama_restart():
+    cmd = f"sudo systemctl restart ollama"
+    run_command(cmd)
+    return {"status": "Ollama server restarting..."}
+
+@app.post("/ollama/status", dependencies=[Depends(get_api_key)])
+async def ollama_status():
+    #just check if the server is up on 10.0.1.3:11434
+    cmd = f"curl -s http://10.0.1.3:11434"
+    ret = run_command(cmd)
+    if "Ollama" in ret:
+        return {"status": "Ollama server is running."}
+    else:
+        return {"status": "Ollama server is not running."}
+
 #add api endpoint for updating the whole site by doing a git pull in the repo. Then the deploy script can be run.
 @app.post("/system/update", dependencies=[Depends(get_api_key)])
 async def site_update():    

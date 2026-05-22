@@ -104,7 +104,10 @@
 .discord-nobot-stop-button,
 .discord-nobot-update-button,
 .system-settings-restart-button,
-.system-settings-update-button {
+.system-settings-update-button,
+.ollama-restart-button,
+.ollama-start-button,
+.ollama-stop-button {
     margin-left: 2px;
     margin-bottom: 2px;
     vertical-align: middle;
@@ -135,7 +138,10 @@
 .discord-nobot-stop-button,
 .discord-nobot-update-button,
 .system-settings-restart-button,
-.system-settings-update-button {
+.system-settings-update-button,
+.ollama-restart-button,
+.ollama-start-button,
+.ollama-stop-button {
     display:flex; 
     flex-direction: row; 
     align-items: center; 
