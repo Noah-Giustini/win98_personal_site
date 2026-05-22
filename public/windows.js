@@ -688,19 +688,19 @@ const ollamaWindowContent = `
     
     <!-- Control Buttons Grid -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 10px;">
-        <a title="Start" class="button ollama-start-button-wrapper js-ollama-start-button" id="ollama-start-button" onclick="ollamaWindowStart()">
+        <a title="Start" class="button ollama-start-button-wrapper js-ollama-start-button" id="ollama-start-button" onclick="ollamaStartServer()">
         <div class="ollama-start-button">
             <img src="./images/internet_options-0.png" style="width:25%; height:25%;">
             <div style="width: min-content;">Start Ollama</div>
         </div>
         </a>
-        <a title="Stop" class="button ollama-stop-button-wrapper js-ollama-stop-button" id="ollama-stop-button" onclick="ollamaWindowStop()">
+        <a title="Stop" class="button ollama-stop-button-wrapper js-ollama-stop-button" id="ollama-stop-button" onclick="ollamaStopServer()">
         <div class="ollama-stop-button">
             <img src="./images/msg_error-0.png" style="width:25%; height:25%;">
             <div style="width: min-content;">Stop Ollama</div>
         </div>
         </a>
-        <a title="Restart" class="button ollama-restart-button-wrapper js-ollama-restart-button" id="ollama-restart-button" onclick="ollamaWindowRestart()">
+        <a title="Restart" class="button ollama-restart-button-wrapper js-ollama-restart-button" id="ollama-restart-button" onclick="ollamaRestartServer()">
         <div class="ollama-restart-button">
             <img src="./images/netmeeting-2.png" style="width:25%; height:25%;">
             <div style="width: min-content;">Restart Ollama</div>
