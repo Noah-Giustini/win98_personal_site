@@ -439,10 +439,9 @@ newAppLinks.forEach(link => {
                 content = internetContent;
                 break;
             case 'ollama':
-                content = ollamaWindowContent; // Added content for Ollama application
-                iconSrc = './images/ollama-icon.png'; // Added icon source for Ollama application
+                content = ollamaWindowContent;
                 startMenu.style.display = 'none';
-                onOpenCallback = initializeOllamaMonitor; // Added callback for opening Ollama window
+                onOpenCallback = initializeOllamaMonitor;
                 break;
             default:
                 content = `<h1>${title}</h1><p>Content for ${title}.</p>`;
@@ -681,6 +680,12 @@ const systemSettingsContent =
 const ollamaWindowContent = `
     <div class="p-4 space-y-4">
 
+    <!-- Status and API Info -->
+    <div class="text-xs text-gray-700 border-t border-gray-400 pt-2" style="margin-bottom: 10px; background-color: darkgray; padding: 5px; display:flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+        <img class="js-status-icon" src="./images/application_hourglass-0.png" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;">
+        <p class="js-status-line">Status: Initializing...</p>
+    </div>
+    
     <!-- Control Buttons Grid -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 10px;">
         <a title="Start" class="button ollama-start-button-wrapper js-ollama-start-button" id="ollama-start-button" onclick="ollamaWindowStart()">
