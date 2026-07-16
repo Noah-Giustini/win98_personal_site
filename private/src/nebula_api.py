@@ -5,6 +5,8 @@ from starlette.status import HTTP_403_FORBIDDEN
 import os
 import re
 import subprocess
+from pathlib import Path
+from typing import List, Tuple, Union
 from dotenv import load_dotenv
 import uvicorn
 
@@ -20,7 +22,17 @@ ZOMBOID_SERVICE_NAME = os.getenv("ZOMBOID_SERVICE_NAME", "zomboid")
 ZOMBOID_LOG_FILE = os.getenv("ZOMBOID_LOG_FILE", "/home/zomboid/Zomboid/Logs/coop-console.txt")
 # Use this to run a command that updates Workshop mods, for example via steamcmd.
 ZOMBOID_MOD_UPDATE_COMMAND = os.getenv("ZOMBOID_MOD_UPDATE_COMMAND", "")
-NEBULA_REPO_DIR = os.getenv("NEBULA_REPO_DIR", "/home/giraffe/repos/win98_personal_site/private/src")
+NEBULA_DEPLOY_SCRIPT = os.getenv("NEBULA_DEPLOY_SCRIPT", "/opt/nebula-api/deploy_nebula.sh")
+SYSTEMCTL_USE_SUDO = os.getenv("SYSTEMCTL_USE_SUDO", "true").lower() == "true"
+SYSTEMCTL_BIN = os.getenv("SYSTEMCTL_BIN", "/bin/systemctl")
+ZOMBOID_LOG_CANDIDATES = [
+    path.strip()
+    for path in os.getenv(
+        "ZOMBOID_LOG_CANDIDATES",
+        "/home/zomboid/Zomboid/Logs/coop-console.txt,/home/zomboid/Zomboid/Logs/server-console.txt,/home/zomboid/Zomboid/server-console.txt"
+    ).split(",")
+    if path.strip()
+]
 
 
 app = FastAPI(title="Project Zomboid API")
@@ -42,19 +54,44 @@ async def get_api_key(header_key: str = Depends(api_key_header)):
     raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Invalid API Key")
 
 
-def run_command(command: str) -> tuple[int, str, str]:
+def run_command(command: Union[List[str], str], use_shell: bool = False) -> Tuple[int, str, str]:
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(
+            command,
+            shell=use_shell,
+            capture_output=True,
+            text=True,
+            executable="/bin/bash" if use_shell else None,
+        )
         return result.returncode, result.stdout.strip(), result.stderr.strip()
     except Exception as exc:
         return 1, "", str(exc)
 
 
-def parse_players_from_log(log_path: str) -> list[str]:
+def service_command(*args: str) -> List[str]:
+    command = []
+    if SYSTEMCTL_USE_SUDO:
+        command.append("sudo")
+    command.extend([SYSTEMCTL_BIN, *args, ZOMBOID_SERVICE_NAME])
+    return command
+
+
+def resolve_zomboid_log_file() -> str:
+    if Path(ZOMBOID_LOG_FILE).exists():
+        return ZOMBOID_LOG_FILE
+
+    for candidate in ZOMBOID_LOG_CANDIDATES:
+        if Path(candidate).exists():
+            return candidate
+
+    return ZOMBOID_LOG_FILE
+
+
+def parse_players_from_log(log_path: str) -> List[str]:
     if not os.path.exists(log_path):
         return []
 
-    connected_players: set[str] = set()
+    connected_players = set()
     connect_pattern = re.compile(r'player\s+"([^"]+)"\s+connected', re.IGNORECASE)
     disconnect_pattern = re.compile(r'player\s+"([^"]+)"\s+disconnected', re.IGNORECASE)
 
@@ -72,8 +109,8 @@ def parse_players_from_log(log_path: str) -> list[str]:
     return sorted(connected_players)
 
 
-def get_service_status() -> tuple[bool, str]:
-    code, stdout, stderr = run_command(f"sudo systemctl is-active {ZOMBOID_SERVICE_NAME}")
+def get_service_status() -> Tuple[bool, str]:
+    code, stdout, stderr = run_command(service_command("is-active"))
 
     status_text = stdout or stderr or "unknown"
     running = code == 0 and status_text.strip() == "active"
@@ -86,19 +123,19 @@ def get_service_status() -> tuple[bool, str]:
 
 @app.post("/zomboid/start", dependencies=[Depends(get_api_key)])
 async def zomboid_start():
-    run_command(f"sudo systemctl start {ZOMBOID_SERVICE_NAME}")
+    run_command(service_command("start"))
     return {"status": "Project Zomboid start command sent."}
 
 
 @app.post("/zomboid/stop", dependencies=[Depends(get_api_key)])
 async def zomboid_stop():
-    run_command(f"sudo systemctl stop {ZOMBOID_SERVICE_NAME}")
+    run_command(service_command("stop"))
     return {"status": "Project Zomboid stop command sent."}
 
 
 @app.post("/zomboid/restart", dependencies=[Depends(get_api_key)])
 async def zomboid_restart():
-    run_command(f"sudo systemctl restart {ZOMBOID_SERVICE_NAME}")
+    run_command(service_command("restart"))
     return {"status": "Project Zomboid restart command sent."}
 
 
@@ -114,7 +151,7 @@ async def zomboid_players():
     if not running:
         return {"players": [], "player_count": 0, "status": "Server offline."}
 
-    players = parse_players_from_log(ZOMBOID_LOG_FILE)
+    players = parse_players_from_log(resolve_zomboid_log_file())
     return {
         "players": players,
         "player_count": len(players),
@@ -129,7 +166,7 @@ async def zomboid_update_mods():
             "status": "No mod update command configured. Set ZOMBOID_MOD_UPDATE_COMMAND in .env."
         }
 
-    code, stdout, stderr = run_command(ZOMBOID_MOD_UPDATE_COMMAND)
+    code, stdout, stderr = run_command(ZOMBOID_MOD_UPDATE_COMMAND, use_shell=True)
     if code != 0:
         return {
             "status": "Mod update failed.",
@@ -144,9 +181,7 @@ async def zomboid_update_mods():
 
 @app.post("/system/update", dependencies=[Depends(get_api_key)])
 async def nebula_system_update():
-    code, stdout, stderr = run_command(
-        f"pushd {NEBULA_REPO_DIR} > /dev/null && ./deploy_nebula.sh && popd > /dev/null"
-    )
+    code, stdout, stderr = run_command(["/bin/bash", NEBULA_DEPLOY_SCRIPT])
 
     if code != 0:
         return {

@@ -1,17 +1,20 @@
 [Unit]
 Description=Project Zomboid Dedicated Server
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 User=zomboid
-WorkingDirectory=/home/zomboid/Zomboid/
-ExecStart=/home/zomboid/zomboid-dedicated/start-server.sh
+Group=zomboid
+WorkingDirectory=/opt/pzserver/
+ExecStart=/opt/pzserver/start-server.sh -servername servertest
 ExecStop=/bin/kill -SIGINT $MAINPID
 Restart=on-failure
 RestartSec=10
 # Give the server time to save and shut down cleanly before killing it
 TimeoutStopSec=120
 KillMode=mixed
+SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target

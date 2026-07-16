@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Project Zomboid backup timer (5am)
+
+[Timer]
+OnCalendar=*-*-* 05:00:00
+Persistent=true
+Unit=zomboid-backup.service
+
+[Install]
+WantedBy=timers.target

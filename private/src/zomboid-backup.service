@@ -1,0 +1,9 @@
+[Unit]
+Description=Project Zomboid save backup job
+After=network.target
+
+[Service]
+Type=oneshot
+User=zomboid
+Group=zomboid
+ExecStart=/opt/pzserver/scripts/zomboid_backup.sh
