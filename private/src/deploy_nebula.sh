@@ -11,14 +11,14 @@ cd "$REPO_ROOT"
 # Always trust this repo for this command invocation, regardless of
 # service user HOME/global git config behavior.
 set +e
-GIT_PULL_OUTPUT="$(git -c safe.directory="$REPO_ROOT" pull --no-rebase origin master 2>&1)"
+GIT_PULL_OUTPUT="$(git -c "safe.directory=$REPO_ROOT" pull --no-rebase origin master 2>&1)"
 GIT_PULL_CODE=$?
 set -e
 
 if [ "$GIT_PULL_CODE" -ne 0 ]; then
     echo "Git pull failed in $REPO_ROOT"
     echo "$GIT_PULL_OUTPUT"
-    git -c safe.directory="$REPO_ROOT" status --short --branch || true
+    git -c "safe.directory=$REPO_ROOT" status --short --branch || true
     exit "$GIT_PULL_CODE"
 fi
 
