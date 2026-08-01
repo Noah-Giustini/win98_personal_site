@@ -259,13 +259,15 @@ async def nebula_system_update():
     if code != 0:
         stdout_lines = [line for line in stdout.splitlines() if line.strip()]
         stderr_lines = [line for line in stderr.splitlines() if line.strip()]
+        stderr_tail = "\n".join(stderr_lines[-40:])
+        stdout_tail = "\n".join(stdout_lines[-40:])
 
         return {
             "status": "Nebula system update failed.",
             "exit_code": code,
             "error": {
-                "stderr": "\n".join(stderr_lines[-40:]),
-                "stdout_tail": "\n".join(stdout_lines[-40:])
+                "stderr": stderr_tail or "No stderr output captured. See stdout_tail and service logs.",
+                "stdout_tail": stdout_tail
             }
         }
 

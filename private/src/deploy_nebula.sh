@@ -44,17 +44,12 @@ if ! sudo "$DEPLOY_DIR/.venv/bin/python" -m pip --version >/dev/null 2>&1; then
     sudo python3 -m venv "$DEPLOY_DIR/.venv"
 fi
 
-sudo "$DEPLOY_DIR/.venv/bin/python" -m pip install --upgrade pip
-sudo "$DEPLOY_DIR/.venv/bin/python" -m pip install -r "$DEPLOY_DIR/requirements.txt"
+sudo "$DEPLOY_DIR/.venv/bin/python" -m pip install --disable-pip-version-check --upgrade pip >/dev/null
+sudo "$DEPLOY_DIR/.venv/bin/python" -m pip install --disable-pip-version-check -r "$DEPLOY_DIR/requirements.txt" >/dev/null
 
 sudo cp "$SRC_DIR/nebula-api.service" "$SERVICE_DST"
 sudo systemctl daemon-reload
 sudo systemctl enable nebula-api.service
-
-if ! sudo systemctl restart nebula-api.service; then
-    echo "Failed to restart nebula-api.service. Recent service logs:" >&2
-    sudo journalctl -u nebula-api.service -n 60 --no-pager >&2 || true
-    exit 1
-fi
+sudo systemctl restart nebula-api.service
 
 echo "Nebula API deployed to $DEPLOY_DIR"
