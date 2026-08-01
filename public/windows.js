@@ -39,7 +39,7 @@ class WindowManager {
     windowContainer.style.left = '40%';
     
     // --- Set initial size for the monitor app to look correct ---
-    if (id === 'sysmon') {
+    if (id === 'sysmon' || id === 'nebula-sysmon') {
         windowContainer.style.width = '450px'; 
         windowContainer.style.height = '350px';
     } else if (id === 'zomboid') {
@@ -412,6 +412,11 @@ newAppLinks.forEach(link => {
                 content = systemMonitorContentHTML;
                 startMenu.style.display = 'none';
                 onOpenCallback = initializeSystemMonitor;
+                break;
+            case 'nebula-sysmon':
+                content = systemMonitorContentHTML;
+                startMenu.style.display = 'none';
+                onOpenCallback = initializeNebulaSystemMonitor;
                 break;
             case 'notepad':
                 content = notepadContent;
@@ -822,7 +827,7 @@ const systemMonitorContentHTML = `
                 <!-- Loading/Error Messages -->
                 <div class="js-loading text-center text-sm font-bold text-gray-700">Connecting to server...</div>
                 <div class="js-error-message hidden text-center text-sm font-bold text-red-600">
-                    Connection Failed. Ensure \`api.py\` is running on <span class="js-api-url"></span>.
+                    Connection Failed. Ensure the monitor API is running on <span class="js-api-url"></span>.
                 </div>
 
                 ${cpuBlock}
@@ -844,6 +849,7 @@ desktopAppIcons.forEach(icon => {
             'zomboid': 'Project Zomboid',
             'discord-nobot': 'Discord No-bot',
             'sysmon': 'System Monitor',
+            'nebula-sysmon': 'Nebula Monitor',
             'ollama': 'Ollama',
             'portfolio': 'My Portfolio',
             "about-me": "About Me"
@@ -854,6 +860,7 @@ desktopAppIcons.forEach(icon => {
             'zomboid': zomboidContent,
             'discord-nobot': discordNobotContent,
             'sysmon': systemMonitorContentHTML,
+            'nebula-sysmon': systemMonitorContentHTML,
             'ollama': ollamaWindowContent,
             'portfolio': portfolioContent,
             "about-me": aboutMeContent
@@ -864,6 +871,7 @@ desktopAppIcons.forEach(icon => {
             'zomboid': initializeZomboidMonitor,
             'discord-nobot': initializeDiscordNobotMonitor,
             'sysmon': initializeSystemMonitor,
+            'nebula-sysmon': initializeNebulaSystemMonitor,
             'ollama': initializeOllamaMonitor,
             'portfolio': null,
             "about-me": null

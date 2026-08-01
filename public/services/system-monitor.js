@@ -58,6 +58,10 @@ function drawHistoryGraph(graphElement, data) {
 
 const METRICS_API = `${API_BASE_URL}/monitor/metrics`;
 
+function getMetricsApiForWindow(windowObj) {
+    return (windowObj && windowObj.metricsApi) ? windowObj.metricsApi : METRICS_API;
+}
+
 /**
  * Main function to fetch and render metrics for a specific window instance.
  */
@@ -90,7 +94,7 @@ async function updateMetrics(id) {
             }
         };
 
-        const data = await fetch(METRICS_API, requestOptions);
+        const data = await fetch(getMetricsApiForWindow(windowObj), requestOptions);
         const dataJson = await data.json();
 
         // Hide loading/error messages on success
@@ -190,6 +194,8 @@ function initializeSystemMonitor(id) {
     const windowObj = windowManager.openWindows.get(id);
     if (!windowObj) return;
 
+    windowObj.metricsApi = `${API_BASE_URL}/monitor/metrics`;
+
     // Initialize history arrays
     windowObj.cpuHistory = [];
     windowObj.memHistory = [];
@@ -208,7 +214,30 @@ function initializeSystemMonitor(id) {
     // Set API endpoint display 
     const windowContainer = document.getElementById(`${id}-window-container`);
     if (windowContainer) {
-        // windowContainer.querySelector('.js-api-endpoint-display').textContent = METRICS_API;
         windowContainer.querySelector('.js-api-url').textContent = API_BASE_URL;
+    }
+}
+
+/**
+ * Initializes the monitoring interval for Nebula monitor windows.
+ */
+function initializeNebulaSystemMonitor(id) {
+    const windowObj = windowManager.openWindows.get(id);
+    if (!windowObj) return;
+
+    windowObj.metricsApi = `${NEBULA_API_BASE_URL}/monitor/metrics`;
+
+    windowObj.cpuHistory = [];
+    windowObj.memHistory = [];
+    windowObj.gpuHistory = [];
+
+    updateMetrics(id);
+
+    const intervalId = setInterval(() => updateMetrics(id), 1000);
+    windowObj.intervalId = intervalId;
+
+    const windowContainer = document.getElementById(`${id}-window-container`);
+    if (windowContainer) {
+        windowContainer.querySelector('.js-api-url').textContent = NEBULA_API_BASE_URL;
     }
 }

@@ -5,6 +5,7 @@ from starlette.status import HTTP_403_FORBIDDEN
 import os
 import re
 import subprocess
+import psutil
 from pathlib import Path
 from typing import List, Tuple, Union
 from dotenv import load_dotenv
@@ -121,6 +122,70 @@ def get_service_status() -> Tuple[bool, str]:
     return False, f"Project Zomboid server is not running (systemd: {status_text.strip()})."
 
 
+def get_cpu_temperature_c() -> float:
+    """Return CPU temperature in Celsius when available, else 0.0."""
+    try:
+        temperature_groups = psutil.sensors_temperatures(fahrenheit=False)
+    except Exception:
+        return 0.0
+
+    if not temperature_groups:
+        return 0.0
+
+    for entries in temperature_groups.values():
+        for entry in entries:
+            current = getattr(entry, "current", None)
+            if current is not None:
+                try:
+                    return round(float(current), 1)
+                except (TypeError, ValueError):
+                    continue
+
+    return 0.0
+
+
+def get_gpu_utilization_percent() -> float:
+    """Return NVIDIA GPU utilization percentage when available, else 0.0."""
+    code, stdout, _ = run_command([
+        "nvidia-smi",
+        "--query-gpu=utilization.gpu",
+        "--format=csv,noheader,nounits",
+    ])
+    if code != 0 or not stdout:
+        return 0.0
+
+    first_line = stdout.splitlines()[0].strip()
+    if not first_line:
+        return 0.0
+
+    match = re.search(r"\d+(?:\.\d+)?", first_line)
+    if not match:
+        return 0.0
+
+    try:
+        return round(float(match.group(0)), 1)
+    except ValueError:
+        return 0.0
+
+
+def get_system_metrics() -> dict:
+    """Collect real-time system usage metrics for Nebula."""
+    cpu_percent = psutil.cpu_percent(interval=0.4, percpu=False)
+
+    memory = psutil.virtual_memory()
+    mem_used_gb = round(memory.used / (1024 ** 3), 1)
+    mem_total_gb = round(memory.total / (1024 ** 3), 1)
+
+    return {
+        "cpu_percent": cpu_percent,
+        "mem_used_gb": mem_used_gb,
+        "mem_total_gb": mem_total_gb,
+        "mem_percent": memory.percent,
+        "temp_c": get_cpu_temperature_c(),
+        "gpu_percent": get_gpu_utilization_percent(),
+    }
+
+
 @app.post("/zomboid/start", dependencies=[Depends(get_api_key)])
 async def zomboid_start():
     run_command(service_command("start"))
@@ -157,6 +222,14 @@ async def zomboid_players():
         "player_count": len(players),
         "status": "Players fetched successfully."
     }
+
+
+@app.get("/monitor/metrics", dependencies=[Depends(get_api_key)])
+async def nebula_system_metrics():
+    try:
+        return get_system_metrics()
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to get system metrics.")
 
 
 @app.post("/zomboid/mods/update", dependencies=[Depends(get_api_key)])
