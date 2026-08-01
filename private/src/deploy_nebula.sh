@@ -7,7 +7,10 @@ DEPLOY_DIR="/opt/nebula-api"
 SERVICE_DST="/etc/systemd/system/nebula-api.service"
 
 cd "$REPO_ROOT"
-git pull origin master
+
+# Always trust this repo for this command invocation, regardless of
+# service user HOME/global git config behavior.
+git -c safe.directory="$REPO_ROOT" pull origin master
 
 sudo mkdir -p "$DEPLOY_DIR"
 sudo cp "$SRC_DIR/nebula_api.py" "$DEPLOY_DIR/nebula_api.py"
