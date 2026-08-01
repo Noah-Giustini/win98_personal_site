@@ -24,6 +24,7 @@ ZOMBOID_LOG_FILE = os.getenv("ZOMBOID_LOG_FILE", "/home/zomboid/Zomboid/Logs/coo
 # Use this to run a command that updates Workshop mods, for example via steamcmd.
 ZOMBOID_MOD_UPDATE_COMMAND = os.getenv("ZOMBOID_MOD_UPDATE_COMMAND", "")
 NEBULA_DEPLOY_SCRIPT = os.getenv("NEBULA_DEPLOY_SCRIPT", "/opt/nebula-api/deploy_nebula.sh")
+NEBULA_DEPLOY_LOG = os.getenv("NEBULA_DEPLOY_LOG", "/opt/nebula-api/deploy_nebula.log")
 SYSTEMCTL_USE_SUDO = os.getenv("SYSTEMCTL_USE_SUDO", "true").lower() == "true"
 SYSTEMCTL_BIN = os.getenv("SYSTEMCTL_BIN", "/bin/systemctl")
 ZOMBOID_LOG_CANDIDATES = [
@@ -254,24 +255,29 @@ async def zomboid_update_mods():
 
 @app.post("/system/update", dependencies=[Depends(get_api_key)])
 async def nebula_system_update():
-    code, stdout, stderr = run_command(["/bin/bash", NEBULA_DEPLOY_SCRIPT])
+    try:
+        log_dir = os.path.dirname(NEBULA_DEPLOY_LOG)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
 
-    if code != 0:
-        stdout_lines = [line for line in stdout.splitlines() if line.strip()]
-        stderr_lines = [line for line in stderr.splitlines() if line.strip()]
-        stderr_tail = "\n".join(stderr_lines[-40:])
-        stdout_tail = "\n".join(stdout_lines[-40:])
+        with open(NEBULA_DEPLOY_LOG, "a", encoding="utf-8") as log_file:
+            log_file.write("\n=== Nebula update triggered ===\n")
+            subprocess.Popen(
+                ["/bin/bash", NEBULA_DEPLOY_SCRIPT],
+                stdout=log_file,
+                stderr=log_file,
+                start_new_session=True,
+            )
 
         return {
-            "status": "Nebula system update failed.",
-            "exit_code": code,
-            "error": {
-                "stderr": stderr_tail or "No stderr output captured. See stdout_tail and service logs.",
-                "stdout_tail": stdout_tail
-            }
+            "status": "Nebula system update started.",
+            "log": NEBULA_DEPLOY_LOG,
         }
-
-    return {"status": "Nebula system updating..."}
+    except Exception as exc:
+        return {
+            "status": "Nebula system update failed to start.",
+            "error": str(exc),
+        }
 
 
 if __name__ == "__main__":
