@@ -67,6 +67,10 @@ class WindowManager {
         this.bringToFront(windowContainer);
     }, true);
 
+    windowContainer.addEventListener('touchstart', (e) => {
+        this.bringToFront(windowContainer);
+    }, true);
+
     this.createTaskbarTab(id, title, iconSrc);
     
     this.setActiveTab(id);
@@ -279,19 +283,23 @@ class WindowManager {
     makeDraggable(elmnt, headerId) {
         const header = document.getElementById(headerId);
         if (header) {
-            header.onmousedown = dragMouseDown;
+            header.addEventListener('mousedown', dragMouseDown);
+            header.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                dragMouseDown(e.touches[0]);
+            }, { passive: false });
         }
 
         function dragMouseDown(e) {
             let pos3 = e.clientX;
             let pos4 = e.clientY;
-            e = e || window.event;
-            e.preventDefault();
-            document.onmouseup = closeDragElement;
-            document.onmousemove = elementDrag;
+            if (e.preventDefault) e.preventDefault();
+            document.addEventListener('mouseup', closeDragElement);
+            document.addEventListener('mousemove', elementDrag);
+            document.addEventListener('touchmove', touchDrag, { passive: false });
+            document.addEventListener('touchend', closeDragElement);
 
             function elementDrag(e) {
-                e = e || window.event;
                 e.preventDefault();
                 let pos1 = pos3 - e.clientX;
                 let pos2 = pos4 - e.clientY;
@@ -300,10 +308,17 @@ class WindowManager {
                 elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
                 elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
             }
+
+            function touchDrag(e) {
+                e.preventDefault();
+                elementDrag(e.touches[0]);
+            }
         
             function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
+                document.removeEventListener('mouseup', closeDragElement);
+                document.removeEventListener('mousemove', elementDrag);
+                document.removeEventListener('touchmove', touchDrag);
+                document.removeEventListener('touchend', closeDragElement);
             }
         }
     }
@@ -315,17 +330,16 @@ class WindowManager {
         const handles = elmnt.querySelectorAll('.resize-handle');
         
         handles.forEach(handle => {
-            handle.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                let initialX = e.clientX;
-                let initialY = e.clientY;
+            const startResize = (clientX, clientY) => {
+                let initialX = clientX;
+                let initialY = clientY;
                 let initialWidth = elmnt.offsetWidth;
                 let initialHeight = elmnt.offsetHeight;
                 const handleType = handle.classList;
 
-                const doResize = (e) => {
-                    const dx = e.clientX - initialX;
-                    const dy = e.clientY - initialY;
+                const doResize = (cx, cy) => {
+                    const dx = cx - initialX;
+                    const dy = cy - initialY;
                     let newWidth = initialWidth;
                     let newHeight = initialHeight;
 
@@ -340,14 +354,31 @@ class WindowManager {
                     elmnt.style.height = `${newHeight}px`;
                 };
 
+                const onMouseMove = (e) => doResize(e.clientX, e.clientY);
+                const onTouchMove = (e) => { e.preventDefault(); doResize(e.touches[0].clientX, e.touches[0].clientY); };
+
                 const stopResize = () => {
-                    document.removeEventListener('mousemove', doResize);
+                    document.removeEventListener('mousemove', onMouseMove);
                     document.removeEventListener('mouseup', stopResize);
+                    document.removeEventListener('touchmove', onTouchMove);
+                    document.removeEventListener('touchend', stopResize);
                 };
 
-                document.addEventListener('mousemove', doResize);
+                document.addEventListener('mousemove', onMouseMove);
                 document.addEventListener('mouseup', stopResize);
+                document.addEventListener('touchmove', onTouchMove, { passive: false });
+                document.addEventListener('touchend', stopResize);
+            };
+
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                startResize(e.clientX, e.clientY);
             });
+
+            handle.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startResize(e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: false });
         });
     }
 }

@@ -92,6 +92,20 @@
     cursor: se-resize; 
 }
 
+/* Larger touch targets on touch screens */
+@media (pointer: coarse) {
+    .handle-right {
+        width: 20px;
+    }
+    .handle-bottom {
+        height: 20px;
+    }
+    .handle-bottom-right {
+        width: 24px;
+        height: 24px;
+    }
+}
+
 .minecraft-restart-button,
 .minecraft-start-button,
 .minecraft-stop-button,
