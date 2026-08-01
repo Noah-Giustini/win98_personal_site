@@ -1,5 +1,7 @@
 #!/bin/bash
-set -euo pipefail
+set -Eeuo pipefail
+
+trap 'echo "Deployment failed at line ${LINENO} while running: ${BASH_COMMAND}" >&2' ERR
 
 REPO_ROOT="/home/giraffe/repos/win98_personal_site"
 SRC_DIR="$REPO_ROOT/private/src"
@@ -48,6 +50,11 @@ sudo "$DEPLOY_DIR/.venv/bin/python" -m pip install -r "$DEPLOY_DIR/requirements.
 sudo cp "$SRC_DIR/nebula-api.service" "$SERVICE_DST"
 sudo systemctl daemon-reload
 sudo systemctl enable nebula-api.service
-sudo systemctl restart nebula-api.service
+
+if ! sudo systemctl restart nebula-api.service; then
+    echo "Failed to restart nebula-api.service. Recent service logs:" >&2
+    sudo journalctl -u nebula-api.service -n 60 --no-pager >&2 || true
+    exit 1
+fi
 
 echo "Nebula API deployed to $DEPLOY_DIR"

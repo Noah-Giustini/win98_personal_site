@@ -257,9 +257,16 @@ async def nebula_system_update():
     code, stdout, stderr = run_command(["/bin/bash", NEBULA_DEPLOY_SCRIPT])
 
     if code != 0:
+        stdout_lines = [line for line in stdout.splitlines() if line.strip()]
+        stderr_lines = [line for line in stderr.splitlines() if line.strip()]
+
         return {
             "status": "Nebula system update failed.",
-            "error": stderr or stdout
+            "exit_code": code,
+            "error": {
+                "stderr": "\n".join(stderr_lines[-40:]),
+                "stdout_tail": "\n".join(stdout_lines[-40:])
+            }
         }
 
     return {"status": "Nebula system updating..."}
